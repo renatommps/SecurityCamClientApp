@@ -341,7 +341,11 @@ public:
 
     void start() {
 
-        std::cout << "Processing task started." << std::endl;
+        time_t now;
+        tm *ltm;
+        now = time(0);
+        ltm = localtime(&now);
+        std::cout << "Processing task started on " << ltm->tm_sec << std::endl;
 
         try {
             // abre dispositivo de vídeo com o argumento passado (índice do dispositivo de vídeo) e define o tamanho (largura X altura)
@@ -355,19 +359,16 @@ public:
         }
 
         try {
-            time_t now;
-            tm *ltm;
+
             while (!errorOnProcessingTask) {
                 std::unique_lock<std::mutex> lock(mut);
                 clientThreadNotified = true;
-                std::this_thread::sleep_for(std::chrono::seconds(1));
                 now = time(0);
                 ltm = localtime(&now);
                 std::cout << "Processing task set clientThreadNotified to true on " << ltm->tm_sec << std::endl;
 
-
-                cond_var.notify_one();
-                std::this_thread::sleep_for(std::chrono::seconds(1));
+                cond_var.notify_one(); /* ELE BLOQUEIA QUANDO CHEGA AQUI */
+                //std::this_thread::sleep_for(std::chrono::seconds(3));
                 now = time(0);
                 ltm = localtime(&now);
                 std::cout << "Processing task notified one on " << ltm->tm_sec << std::endl;
@@ -421,6 +422,13 @@ public:
 
         std::cout << "client task started, task id: " << identity_ << ", server ip: " << serverIP_ << ", server port: " << serverPort_ << std::endl;
 
+        time_t now;
+        tm *ltm;
+        now = time(0);
+        ltm = localtime(&now);
+        std::cout << "Client thread iniciate on " << ltm->tm_sec << std::endl;
+        std::this_thread::sleep_for(std::chrono::seconds(2));
+        
         // define socket
         client_socket_.setsockopt(ZMQ_IDENTITY, identity_.c_str(), identity_.size()); // set socket ID
         client_socket_.connect(std::string("tcp://") + serverIP_ + std::string(":") + serverPort_); // set socket connection
@@ -431,23 +439,24 @@ public:
         int request_nbr = 0;
 
         try {
-            time_t now;
-            tm *ltm;
+
+            std::cout << "Client thread before first while loop on " << ltm->tm_sec << std::endl;
             while (!errorOnProcessingTask && !ProcessingTaskDone) {
+                std::this_thread::sleep_for(std::chrono::seconds(2));
                 std::unique_lock<std::mutex> lock(mut);
                 now = time(0);
                 ltm = localtime(&now);
-                std::cout << "Client thread before while loop on " << ltm->tm_sec << std::endl;
-                std::this_thread::sleep_for(std::chrono::seconds(1));
+                std::cout << "Client thread before second while loop on " << ltm->tm_sec << std::endl;
+                std::this_thread::sleep_for(std::chrono::seconds(2));
                 while (!clientThreadNotified && !ProcessingTaskDone) { // loop to avoid spurious wakeups
                     now = time(0);
                     ltm = localtime(&now);
                     std::cout << "Client thread will wait lock on " << ltm->tm_sec << std::endl;
-                    std::this_thread::sleep_for(std::chrono::seconds(1));
+                    std::this_thread::sleep_for(std::chrono::seconds(2));
                     cond_var.wait(lock);
                     now = time(0);
                     ltm = localtime(&now);
-                    std::this_thread::sleep_for(std::chrono::seconds(1));
+                    std::this_thread::sleep_for(std::chrono::seconds(2));
                     std::cout << "Client thread got lock on " << ltm->tm_sec << std::endl;
                 }
 
@@ -465,7 +474,6 @@ public:
                     now = time(0);
                     ltm = localtime(&now);
                     std::cout << "Client thread  notfied processing task on " << ltm->tm_sec << std::endl;
-                    //std::this_thread::sleep_for ( std::chrono::seconds ( 2 ) );
                 }
 
             }
