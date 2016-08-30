@@ -35,7 +35,10 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
-	${OBJECTDIR}/main.o
+	${OBJECTDIR}/bufferManager.o \
+	${OBJECTDIR}/main.o \
+	${OBJECTDIR}/messageDealer.o \
+	${OBJECTDIR}/processing_task.o
 
 
 # C Compiler Flags
@@ -52,7 +55,7 @@ FFLAGS=
 ASFLAGS=
 
 # Link Libraries and Options
-LDLIBSOPTIONS=-L/usr/local/lib -Wl,-rpath,/usr/local/include/opencv2 -Wl,-rpath,/usr/local/lib `pkg-config --libs pthread-stubs` -lpthread  -lopencv_calib3d -lopencv_core -lopencv_features2d -lopencv_flann -lopencv_highgui -lopencv_imgcodecs -lopencv_imgproc -lopencv_ml -lopencv_objdetect -lopencv_photo -lopencv_shape -lopencv_stitching -lopencv_superres -lopencv_ts -lopencv_video -lopencv_videoio -lopencv_videostab -lzmq -lzmq -lzmqpp -lzmqpp  
+LDLIBSOPTIONS=-L/usr/local/lib -Wl,-rpath,/usr/local/include/opencv2 -Wl,-rpath,/usr/local/lib `pkg-config --libs pthread-stubs` -lpthread  -lopencv_calib3d -lopencv_core -lopencv_features2d -lopencv_flann -lopencv_highgui -lopencv_imgcodecs -lopencv_imgproc -lopencv_ml -lopencv_objdetect -lopencv_photo -lopencv_shape -lopencv_stitching -lopencv_superres -lopencv_ts -lopencv_video -lopencv_videoio -lopencv_videostab -lzmq -lzmq -lzmqpp -lzmqpp -lpthread   
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
@@ -62,10 +65,25 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/zqmclient: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
 	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/zqmclient ${OBJECTFILES} ${LDLIBSOPTIONS}
 
+${OBJECTDIR}/bufferManager.o: bufferManager.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -I/usr/local/include/opencv2 -I/usr/local/include/opencv2/opencv.hpp `pkg-config --cflags pthread-stubs`   -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/bufferManager.o bufferManager.cpp
+
 ${OBJECTDIR}/main.o: main.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.cc) -g -I/usr/local/include/opencv2 -I/usr/local/include/opencv2/opencv.hpp `pkg-config --cflags pthread-stubs`   -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/main.o main.cpp
+
+${OBJECTDIR}/messageDealer.o: messageDealer.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -I/usr/local/include/opencv2 -I/usr/local/include/opencv2/opencv.hpp `pkg-config --cflags pthread-stubs`   -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/messageDealer.o messageDealer.cpp
+
+${OBJECTDIR}/processing_task.o: processing_task.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -I/usr/local/include/opencv2 -I/usr/local/include/opencv2/opencv.hpp `pkg-config --cflags pthread-stubs`   -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/processing_task.o processing_task.cpp
 
 # Subprojects
 .build-subprojects:

@@ -271,13 +271,14 @@
 //   cv::waitKey(30);
 // }
 
-#include <stdlib.h>      // atoi
-#include <thread>        // std::thread
-#include <string>        // std::string
-#include <fstream>       // std::fstream
-#include <fstream>       // std::ofstream
-#include <unistd.h>  // std::usleep
-#include <chrono>  // std::chrono::milliseconds
+#include <stdlib.h>         // atoi
+#include <thread>           // std::thread
+#include <string>           // std::string
+#include <fstream>          // std::fstream
+#include <fstream>          // std::ofstream
+#include <list>             // std::list
+#include <unistd.h>         // std::usleep
+#include <chrono>           // std::chrono::milliseconds
 #include <mutex>               // std::mutex, std::unique_lock
 #include <condition_variable>  // std::condition_variable
 #include <opencv2/opencv.hpp>
@@ -288,11 +289,12 @@
 static void show_error_on_file_and_screen(std::string error);
 std::string get_selfpath();
 bool setClientName(std::string * c_name);
-// static bool openAndConfigureVideoDevice(cv::VideoCapture *cap_device, int src);
 void readInicialFrame(cv::VideoCapture * cap_device, cv::Mat * f, cv::Mat * pf, cv::Mat * ppf);
 void setFrameParameters(cv::Mat * f, int * f_width, int * f_height, int * pf_width, int * pf_height, int * max_mov_width, int * min_mov_width,
         int * min_horizontal_mov_dist, int * min_vertical_mov_dist, int * pf_border_width);
 void defineServoPosition(short int servo_channel, short int position);
+static bool ProcessingTaskInNormalFunction();
+
 
 const short int DEFAULT_WIDTH = 640; // width (largura) padão do frame
 const short int DEFAULT_HEIGHT = 480; // height (altura) padão do frame
@@ -315,7 +317,9 @@ std::string _mac;
 cv::VideoCapture _cap;
 cv::Mat _frame;
 cv::Mat _processedFrame;
+cv::Mat _clientFrame;
 cv::Mat _LastProcessedFrame;
+std::list<cv::Mat> frame_buffer;
 int _frameWidth;
 int _frameHeight;
 int _processedFrameWidth;
@@ -330,28 +334,35 @@ bool errorOnProcessingTask = false;
 bool ProcessingTaskDone = false;
 bool errorOnClientTask = false;
 bool clientThreadNotified = false;
+bool clientTaskInitializad = false;
+
 std::condition_variable cond_var;
-std::mutex mut;
+std::mutex variable_access_mutex;
+std::mutex sincronization_mutex;
+std::mutex clientFrame_mutex;
+std::mutex buffer_mutex;
 
 class processing_task {
+    
+    bool openAndConfigureVideoDevice();
+    
 public:
 
     processing_task(int capDeviceIndex) : capDeviceIndex_(capDeviceIndex) {
     } // constructor
 
     void start() {
+        std::cout << "Processing task started." << std::endl;
 
-        time_t now;
-        tm *ltm;
-        now = time(0);
-        ltm = localtime(&now);
-        std::cout << "Processing task started on " << ltm->tm_sec << std::endl;
+        /* abre o dispositivo de vídeo*/
+        errorOnProcessingTask = openAndConfigureVideoDevice();
 
+        /* espera o Client task iniciar (sincroniza) */
         try {
-            // abre dispositivo de vídeo com o argumento passado (índice do dispositivo de vídeo) e define o tamanho (largura X altura)
-            if (!openAndConfigureVideoDevice(&_cap, _capDeviceIndex)) {
-                errorOnProcessingTask = true;
-                show_error_on_file_and_screen("Cannot open/configure the video device with index " + _capDeviceIndex);
+            bool clientStartReady = false;
+            while (!clientStartReady) {
+                std::lock_guard<std::mutex> lk(sincronization_mutex);
+                clientStartReady = clientTaskInitializad;
             }
         } catch (std::exception & e) {
             std::cout << "Error in processing task : " << e.what() << std::endl;
@@ -359,31 +370,33 @@ public:
         }
 
         try {
+            _cap.read(_frame);
 
-            while (!errorOnProcessingTask) {
-                std::unique_lock<std::mutex> lock(mut);
-                clientThreadNotified = true;
-                now = time(0);
-                ltm = localtime(&now);
-                std::cout << "Processing task set clientThreadNotified to true on " << ltm->tm_sec << std::endl;
+            buffer_mutex.lock();
+            frame_buffer.push_back(_frame);
+            buffer_mutex.unlock();
 
-                cond_var.notify_one(); /* ELE BLOQUEIA QUANDO CHEGA AQUI */
-                //std::this_thread::sleep_for(std::chrono::seconds(3));
-                now = time(0);
-                ltm = localtime(&now);
-                std::cout << "Processing task notified one on " << ltm->tm_sec << std::endl;
-                cond_var.wait(lock);
-                now = time(0);
-                ltm = localtime(&now);
-                std::cout << "Processing task woke up on " << ltm->tm_sec << std::endl;
+            cv::resize(_frame, _processedFrame, DEFAULT_PROCESSED_FRAME_SIZE, 0, 0, CV_INTER_AREA);
 
-                errorOnProcessingTask = true;
+            int cont = 0;
+            /* fluxo normal de execução*/
+            while (!errorOnProcessingTask && cont < 1000) {
+
+                _LastProcessedFrame = _processedFrame.clone();
+                _cap.read(_frame);
+
+                buffer_mutex.lock();
+                frame_buffer.push_back(_frame);
+                buffer_mutex.unlock();
+
+                cv::resize(_frame, _processedFrame, DEFAULT_PROCESSED_FRAME_SIZE, 0, 0, CV_INTER_AREA);
+
+                cont++;
             }
 
-
+            variable_access_mutex.lock();
             ProcessingTaskDone = true;
-            std::unique_lock<std::mutex> lock(mut);
-            cond_var.notify_one();
+            variable_access_mutex.unlock();
 
         } catch (std::exception & e) {
             std::cout << "Error in processing task : " << e.what() << std::endl;
@@ -391,23 +404,33 @@ public:
         }
 
         std::cout << "Processing thread finished execution!" << std::endl;
-
     }
 
-    bool openAndConfigureVideoDevice(cv::VideoCapture * cap_device, int src) {
-        cap_device->open(src);
 
-        if (!cap_device->isOpened()) {
-            return false;
-        }
-
-        cap_device->set(CV_CAP_PROP_FRAME_WIDTH, DEFAULT_WIDTH);
-        cap_device->set(CV_CAP_PROP_FRAME_HEIGHT, DEFAULT_HEIGHT);
-
-        return true;
-    }
 
 private:
+
+    bool openAndConfigureVideoDevice(cv::VideoCapture * cap_device, int src) {
+        bool statusError = false;
+
+        try {
+            // abre dispositivo de vídeo com o argumento passado (índice do dispositivo de vídeo)
+            cap_device->open(src);
+            if (cap_device->isOpened()) {
+                // define o tamanho do frame (largura X altura)
+                cap_device->set(CV_CAP_PROP_FRAME_WIDTH, DEFAULT_WIDTH);
+                cap_device->set(CV_CAP_PROP_FRAME_HEIGHT, DEFAULT_HEIGHT);
+            } else {
+                statusError = true;
+                show_error_on_file_and_screen("Cannot open/configure the video device with index " + _capDeviceIndex);
+            }
+        } catch (std::exception & e) {
+            statusError = true;
+            show_error_on_file_and_screen( std::string("Error in processing task : ") + std::string(e.what()) );
+        }
+        return statusError;
+    }
+
     int capDeviceIndex_;
     cv::VideoCapture cap_;
 };
@@ -419,71 +442,49 @@ public:
     } // constructor
 
     void start() {
-
         std::cout << "client task started, task id: " << identity_ << ", server ip: " << serverIP_ << ", server port: " << serverPort_ << std::endl;
-
         time_t now;
         tm *ltm;
-        now = time(0);
-        ltm = localtime(&now);
-        std::cout << "Client thread iniciate on " << ltm->tm_sec << std::endl;
-        std::this_thread::sleep_for(std::chrono::seconds(2));
-        
-        // define socket
-        client_socket_.setsockopt(ZMQ_IDENTITY, identity_.c_str(), identity_.size()); // set socket ID
-        client_socket_.connect(std::string("tcp://") + serverIP_ + std::string(":") + serverPort_); // set socket connection
 
-        zmq::pollitem_t items[] = {
-            {static_cast<void *> (client_socket_), 0, ZMQ_POLLIN, 0}
-        }; //typedef struct {void //*socket//;int //fd (file descriptor)//;short //events//;short //revents//;} zmq_pollitem_t;
-        int request_nbr = 0;
-
-        try {
-
-            std::cout << "Client thread before first while loop on " << ltm->tm_sec << std::endl;
-            while (!errorOnProcessingTask && !ProcessingTaskDone) {
-                std::this_thread::sleep_for(std::chrono::seconds(2));
-                std::unique_lock<std::mutex> lock(mut);
-                now = time(0);
-                ltm = localtime(&now);
-                std::cout << "Client thread before second while loop on " << ltm->tm_sec << std::endl;
-                std::this_thread::sleep_for(std::chrono::seconds(2));
-                while (!clientThreadNotified && !ProcessingTaskDone) { // loop to avoid spurious wakeups
-                    now = time(0);
-                    ltm = localtime(&now);
-                    std::cout << "Client thread will wait lock on " << ltm->tm_sec << std::endl;
-                    std::this_thread::sleep_for(std::chrono::seconds(2));
-                    cond_var.wait(lock);
-                    now = time(0);
-                    ltm = localtime(&now);
-                    std::this_thread::sleep_for(std::chrono::seconds(2));
-                    std::cout << "Client thread got lock on " << ltm->tm_sec << std::endl;
-                }
-
-                if (!ProcessingTaskDone) {
-                    now = time(0);
-                    ltm = localtime(&now);
-                    std::cout << "Processing task not done yet, Client thread doint it's stuff on " << ltm->tm_sec << std::endl;
-
-                    clientThreadNotified = false;
-                    now = time(0);
-                    ltm = localtime(&now);
-                    std::cout << "Client thread will notfie processing task on " << ltm->tm_sec << std::endl;
-                    cond_var.notify_one();
-                    std::this_thread::sleep_for(std::chrono::seconds(1));
-                    now = time(0);
-                    ltm = localtime(&now);
-                    std::cout << "Client thread  notfied processing task on " << ltm->tm_sec << std::endl;
-                }
-
-            }
-
-        } catch
-            (std::exception & e) {
-            std::cout << "Error in client task : " << e.what() << std::endl;
-        }
+        //        /* inicia o socket */
+        //        try {
+        //            // define socket
+        //            client_socket_.setsockopt(ZMQ_IDENTITY, identity_.c_str(), identity_.size()); // set socket ID
+        //            client_socket_.connect(std::string("tcp://") + serverIP_ + std::string(":") + serverPort_); // set socket connection
+        //
+        //            zmq::pollitem_t items[] = {
+        //                {static_cast<void *> (client_socket_), 0, ZMQ_POLLIN, 0}
+        //            }; //typedef struct {void //*socket//;int //fd (file descriptor)//;short //events//;short //revents//;} zmq_pollitem_t;
+        //
+        //            std::lock_guard<std::mutex> lk(sincronization_mutex);
+        //            clientTaskInitializad = true;
+        //        } catch (std::exception & e) {
+        //            std::cout << "Error in client task : " << e.what() << std::endl;
+        //            errorOnProcessingTask = true;
+        //        }
+        //
+        //        /* ciclo normal de execução*/
+        //        try {
+        //            while (ProcessingTaskInNormalFunction()) {
+        //
+        //
+        //
+        //
+        //            }
+        //
+        //        } catch
+        //            (std::exception & e) {
+        //            std::cout << "Error in client task : " << e.what() << std::endl;
+        //        }
 
         std::cout << "Client thread finished execution!" << std::endl;
+    }
+
+    bool notified() {
+        variable_access_mutex.lock();
+        bool status = !clientThreadNotified && !ProcessingTaskDone;
+        variable_access_mutex.unlock();
+        return status;
     }
 
 private:
@@ -493,6 +494,62 @@ private:
     std::string serverPort_;
     std::string identity_;
 };
+
+class storage_tast {
+public:
+
+    storage_tast() {
+    } // constructor
+
+    void start() {
+        std::cout << "Storage task started" << std::endl;
+
+        /* ciclo normal de execução*/
+        try {
+            while (ProcessingTaskInNormalFunction()) {
+                while (frameBufferEmpty()) {
+                    std::cout << "Frame buffer empty, storage task waiting" << std::endl;
+                    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                }
+
+                /* lê o primeiro elemento da fila e o remove */
+                variable_access_mutex.lock();
+                std::cout << "There are " << frame_buffer.size() << " frames to store." << std::endl;
+                storage_frame = frame_buffer.front();
+                frame_buffer.pop_front();
+                variable_access_mutex.unlock();
+
+                cv::imshow("Frame", storage_frame);
+                if (cv::waitKey(30) >= 0) break;
+            }
+
+        } catch
+            (std::exception & e) {
+            std::cout << "Error in Storage task : " << e.what() << std::endl;
+        }
+
+        std::cout << "Storage thread finished execution!" << std::endl;
+    }
+
+private:
+    cv::Mat storage_frame;
+
+    bool frameBufferEmpty() {
+        bool frameEmpty;
+        buffer_mutex.lock();
+        frameEmpty = frame_buffer.empty();
+        buffer_mutex.unlock();
+
+        return frameEmpty;
+    }
+};
+
+static bool ProcessingTaskInNormalFunction() {
+    variable_access_mutex.lock();
+    bool status = !errorOnProcessingTask && !ProcessingTaskDone;
+    variable_access_mutex.unlock();
+    return status;
+}
 
 int main(int argc, char * argv[]) {
     if (argc < 4) { // É esperado 4 argumentos: o nome do programa (por padrão é passado),o índice do dispositivo de vídeo, o IP do server, e a porta do server
@@ -513,13 +570,16 @@ int main(int argc, char * argv[]) {
     }
 
     processing_task pt(_capDeviceIndex);
+    //storage_tast st();
     client_task ct(_serverIP, _serverPort, _mac);
 
     std::thread tp(&processing_task::start, &pt);
+    //std::thread ts(&storage_tast::start, &st);
     std::thread tc(&client_task::start, &ct);
 
     std::cout << "Main execution will join client task and wait to finish it's execution!" << std::endl;
     tp.join();
+    //ts.join();
     tc.join();
     std::cout << "Main execution finished, process terminated!" << std::endl;
 

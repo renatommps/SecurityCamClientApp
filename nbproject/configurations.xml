@@ -4,12 +4,18 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Arquivos de Cabeçalho"
                    projectFiles="true">
+      <itemPath>bufferManager.h</itemPath>
+      <itemPath>messageDealer.h</itemPath>
+      <itemPath>processing_task.h</itemPath>
       <itemPath>zhelpers.hpp</itemPath>
     </logicalFolder>
     <logicalFolder name="SourceFiles"
                    displayName="Arquivos de Código-Fonte"
                    projectFiles="true">
+      <itemPath>bufferManager.cpp</itemPath>
       <itemPath>main.cpp</itemPath>
+      <itemPath>messageDealer.cpp</itemPath>
+      <itemPath>processing_task.cpp</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
                    displayName="Arquivos de Recurso"
@@ -80,10 +86,23 @@
             <linkerLibLibItem>zmq</linkerLibLibItem>
             <linkerLibLibItem>zmqpp</linkerLibLibItem>
             <linkerLibLibItem>zmqpp</linkerLibLibItem>
+            <linkerLibStdlibItem>PosixThreads</linkerLibStdlibItem>
           </linkerLibItems>
         </linkerTool>
       </compileType>
+      <item path="bufferManager.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="bufferManager.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="messageDealer.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="messageDealer.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="processing_task.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="processing_task.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="zhelpers.hpp" ex="false" tool="3" flavor2="0">
       </item>
@@ -108,7 +127,19 @@
           <developmentMode>5</developmentMode>
         </asmTool>
       </compileType>
+      <item path="bufferManager.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="bufferManager.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="messageDealer.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="messageDealer.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="processing_task.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="processing_task.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="zhelpers.hpp" ex="false" tool="3" flavor2="0">
       </item>
