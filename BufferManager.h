@@ -12,11 +12,11 @@
 #include <mutex>                // std::mutex, std::unique_lock
 #include <opencv2/opencv.hpp>   // cv::Mat
 
-class bufferManager {
+class BufferManager {
 public:
-    bufferManager();
-    bufferManager(const bufferManager& orig);
-    virtual ~bufferManager();
+    BufferManager();
+    BufferManager(const BufferManager& orig);
+    virtual ~BufferManager();
     void pushBackFrame(cv::Mat frame);
     cv::Mat popFrontFrame();
 private:

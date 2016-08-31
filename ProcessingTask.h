@@ -9,20 +9,20 @@
 #define PROCESSINGTASK_H
 
 #include <string>       //std::string
-#include "messageDealer.h"
-#include "bufferManager.h"
-#include "synchronizationAndStatusDealer.h"
+#include "MessageDealer.h"
+#include "BufferManager.h"
+#include "SynchronizationAndStatusDealer.h"
 
 const short int DEFAULT_WIDTH = 640; // width (largura) padão do frame
 const short int DEFAULT_HEIGHT = 480; // height (altura) padão do frame
 const short int DEFAULT_RESIZE_SCALE = 4; // fator usado para redimensionar o frame que sera processado (para aumentar a velocidade de processamento)
 const cv::Size DEFAULT_PROCESSED_FRAME_SIZE(DEFAULT_WIDTH / DEFAULT_RESIZE_SCALE, DEFAULT_HEIGHT / DEFAULT_RESIZE_SCALE); // tamanho do frame que sera processado
 
-class processingTask {
+class ProcessingTask {
 public:
-    processingTask();
-    processingTask(int capDeviceIndex, bufferManager *buffer, synchronizationAndStatusDealer *synchAndStatusDealer);
-    virtual ~processingTask();
+    ProcessingTask();
+    ProcessingTask(int capDeviceIndex, BufferManager *buffer, SynchronizationAndStatusDealer *synchAndStatusDealer);
+    virtual ~ProcessingTask();
     void start();
 private:
     bool _executionError;
@@ -31,8 +31,8 @@ private:
     cv::Mat _frame;
     cv::Mat _processedFrame;
     cv::Mat _LastProcessedFrame;
-    bufferManager *_frameBuffer;
-    synchronizationAndStatusDealer *_synchAndStatusDealer;
+    BufferManager *_frameBuffer;
+    SynchronizationAndStatusDealer *_synchAndStatusDealer;
     
     bool openAndConfigureVideoDevice();
 };

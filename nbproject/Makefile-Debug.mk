@@ -35,12 +35,13 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
-	${OBJECTDIR}/bufferManager.o \
-	${OBJECTDIR}/main.o \
-	${OBJECTDIR}/messageDealer.o \
-	${OBJECTDIR}/processingTask.o \
-	${OBJECTDIR}/storageTask.o \
-	${OBJECTDIR}/synchronizationAndStatusDealer.o
+	${OBJECTDIR}/BufferManager.o \
+	${OBJECTDIR}/ClientTask.o \
+	${OBJECTDIR}/MessageDealer.o \
+	${OBJECTDIR}/ProcessingTask.o \
+	${OBJECTDIR}/StorageTask.o \
+	${OBJECTDIR}/SynchronizationAndStatusDealer.o \
+	${OBJECTDIR}/main.o
 
 
 # C Compiler Flags
@@ -67,35 +68,40 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/zqmclient: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
 	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/zqmclient ${OBJECTFILES} ${LDLIBSOPTIONS}
 
-${OBJECTDIR}/bufferManager.o: bufferManager.cpp 
+${OBJECTDIR}/BufferManager.o: BufferManager.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
-	$(COMPILE.cc) -g -I/usr/local/include/opencv2 -I/usr/local/include/opencv2/opencv.hpp `pkg-config --cflags pthread-stubs`   -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/bufferManager.o bufferManager.cpp
+	$(COMPILE.cc) -g -I/usr/local/include/opencv2 `pkg-config --cflags pthread-stubs`   -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/BufferManager.o BufferManager.cpp
+
+${OBJECTDIR}/ClientTask.o: ClientTask.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -I/usr/local/include/opencv2 `pkg-config --cflags pthread-stubs`   -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/ClientTask.o ClientTask.cpp
+
+${OBJECTDIR}/MessageDealer.o: MessageDealer.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -I/usr/local/include/opencv2 `pkg-config --cflags pthread-stubs`   -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/MessageDealer.o MessageDealer.cpp
+
+${OBJECTDIR}/ProcessingTask.o: ProcessingTask.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -I/usr/local/include/opencv2 `pkg-config --cflags pthread-stubs`   -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/ProcessingTask.o ProcessingTask.cpp
+
+${OBJECTDIR}/StorageTask.o: StorageTask.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -I/usr/local/include/opencv2 `pkg-config --cflags pthread-stubs`   -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/StorageTask.o StorageTask.cpp
+
+${OBJECTDIR}/SynchronizationAndStatusDealer.o: SynchronizationAndStatusDealer.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -I/usr/local/include/opencv2 `pkg-config --cflags pthread-stubs`   -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/SynchronizationAndStatusDealer.o SynchronizationAndStatusDealer.cpp
 
 ${OBJECTDIR}/main.o: main.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
-	$(COMPILE.cc) -g -I/usr/local/include/opencv2 -I/usr/local/include/opencv2/opencv.hpp `pkg-config --cflags pthread-stubs`   -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/main.o main.cpp
-
-${OBJECTDIR}/messageDealer.o: messageDealer.cpp 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} "$@.d"
-	$(COMPILE.cc) -g -I/usr/local/include/opencv2 -I/usr/local/include/opencv2/opencv.hpp `pkg-config --cflags pthread-stubs`   -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/messageDealer.o messageDealer.cpp
-
-${OBJECTDIR}/processingTask.o: processingTask.cpp 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} "$@.d"
-	$(COMPILE.cc) -g -I/usr/local/include/opencv2 -I/usr/local/include/opencv2/opencv.hpp `pkg-config --cflags pthread-stubs`   -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/processingTask.o processingTask.cpp
-
-${OBJECTDIR}/storageTask.o: storageTask.cpp 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} "$@.d"
-	$(COMPILE.cc) -g -I/usr/local/include/opencv2 -I/usr/local/include/opencv2/opencv.hpp `pkg-config --cflags pthread-stubs`   -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/storageTask.o storageTask.cpp
-
-${OBJECTDIR}/synchronizationAndStatusDealer.o: synchronizationAndStatusDealer.cpp 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} "$@.d"
-	$(COMPILE.cc) -g -I/usr/local/include/opencv2 -I/usr/local/include/opencv2/opencv.hpp `pkg-config --cflags pthread-stubs`   -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/synchronizationAndStatusDealer.o synchronizationAndStatusDealer.cpp
+	$(COMPILE.cc) -g -I/usr/local/include/opencv2 `pkg-config --cflags pthread-stubs`   -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/main.o main.cpp
 
 # Subprojects
 .build-subprojects:

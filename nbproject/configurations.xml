@@ -4,22 +4,24 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Arquivos de Cabeçalho"
                    projectFiles="true">
-      <itemPath>bufferManager.h</itemPath>
-      <itemPath>messageDealer.h</itemPath>
-      <itemPath>processingTask.h</itemPath>
-      <itemPath>storageTask.h</itemPath>
-      <itemPath>synchronizationAndStatusDealer.h</itemPath>
+      <itemPath>BufferManager.h</itemPath>
+      <itemPath>ClientTask.h</itemPath>
+      <itemPath>MessageDealer.h</itemPath>
+      <itemPath>ProcessingTask.h</itemPath>
+      <itemPath>StorageTask.h</itemPath>
+      <itemPath>SynchronizationAndStatusDealer.h</itemPath>
       <itemPath>zhelpers.hpp</itemPath>
     </logicalFolder>
     <logicalFolder name="SourceFiles"
                    displayName="Arquivos de Código-Fonte"
                    projectFiles="true">
-      <itemPath>bufferManager.cpp</itemPath>
+      <itemPath>BufferManager.cpp</itemPath>
+      <itemPath>ClientTask.cpp</itemPath>
+      <itemPath>MessageDealer.cpp</itemPath>
+      <itemPath>ProcessingTask.cpp</itemPath>
+      <itemPath>StorageTask.cpp</itemPath>
+      <itemPath>SynchronizationAndStatusDealer.cpp</itemPath>
       <itemPath>main.cpp</itemPath>
-      <itemPath>messageDealer.cpp</itemPath>
-      <itemPath>processingTask.cpp</itemPath>
-      <itemPath>storageTask.cpp</itemPath>
-      <itemPath>synchronizationAndStatusDealer.cpp</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
                    displayName="Arquivos de Recurso"
@@ -54,7 +56,6 @@
         <ccTool>
           <incDir>
             <pElem>/usr/local/include/opencv2</pElem>
-            <pElem>/usr/local/include/opencv2/opencv.hpp</pElem>
           </incDir>
           <commandLine>-pthread -std=c++11</commandLine>
         </ccTool>
@@ -94,27 +95,31 @@
           </linkerLibItems>
         </linkerTool>
       </compileType>
-      <item path="bufferManager.cpp" ex="false" tool="1" flavor2="0">
+      <item path="BufferManager.cpp" ex="false" tool="1" flavor2="0">
       </item>
-      <item path="bufferManager.h" ex="false" tool="3" flavor2="0">
+      <item path="BufferManager.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ClientTask.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ClientTask.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="MessageDealer.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="MessageDealer.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ProcessingTask.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ProcessingTask.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="StorageTask.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="StorageTask.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="SynchronizationAndStatusDealer.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="SynchronizationAndStatusDealer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="0">
-      </item>
-      <item path="messageDealer.cpp" ex="false" tool="1" flavor2="0">
-      </item>
-      <item path="messageDealer.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="processingTask.cpp" ex="false" tool="1" flavor2="0">
-      </item>
-      <item path="processingTask.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="storageTask.cpp" ex="false" tool="1" flavor2="0">
-      </item>
-      <item path="storageTask.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="synchronizationAndStatusDealer.cpp" ex="false" tool="1" flavor2="0">
-      </item>
-      <item path="synchronizationAndStatusDealer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="zhelpers.hpp" ex="false" tool="3" flavor2="0">
       </item>
@@ -139,27 +144,31 @@
           <developmentMode>5</developmentMode>
         </asmTool>
       </compileType>
-      <item path="bufferManager.cpp" ex="false" tool="1" flavor2="0">
+      <item path="BufferManager.cpp" ex="false" tool="1" flavor2="0">
       </item>
-      <item path="bufferManager.h" ex="false" tool="3" flavor2="0">
+      <item path="BufferManager.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ClientTask.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ClientTask.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="MessageDealer.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="MessageDealer.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ProcessingTask.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="ProcessingTask.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="StorageTask.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="StorageTask.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="SynchronizationAndStatusDealer.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="SynchronizationAndStatusDealer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="0">
-      </item>
-      <item path="messageDealer.cpp" ex="false" tool="1" flavor2="0">
-      </item>
-      <item path="messageDealer.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="processingTask.cpp" ex="false" tool="1" flavor2="0">
-      </item>
-      <item path="processingTask.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="storageTask.cpp" ex="false" tool="1" flavor2="0">
-      </item>
-      <item path="storageTask.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="synchronizationAndStatusDealer.cpp" ex="false" tool="1" flavor2="0">
-      </item>
-      <item path="synchronizationAndStatusDealer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="zhelpers.hpp" ex="false" tool="3" flavor2="0">
       </item>

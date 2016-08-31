@@ -5,26 +5,26 @@
  * Created on 31 de Agosto de 2016, 11:05
  */
 
-#include "synchronizationAndStatusDealer.h"
+#include "SynchronizationAndStatusDealer.h"
 
-synchronizationAndStatusDealer::synchronizationAndStatusDealer() {
+SynchronizationAndStatusDealer::SynchronizationAndStatusDealer() {
     _ProcessingTaskErrorStatus = false;
 }
 
-synchronizationAndStatusDealer::synchronizationAndStatusDealer(const synchronizationAndStatusDealer& orig) {
+SynchronizationAndStatusDealer::SynchronizationAndStatusDealer(const SynchronizationAndStatusDealer& orig) {
     _ProcessingTaskErrorStatus = false;
 }
 
-synchronizationAndStatusDealer::~synchronizationAndStatusDealer() {
+SynchronizationAndStatusDealer::~SynchronizationAndStatusDealer() {
 }
 
-void synchronizationAndStatusDealer::setProcessingTaskErrorStatus(bool status){
+void SynchronizationAndStatusDealer::setProcessingTaskErrorStatus(bool status){
     _ProcessingTaskErrorStatusMutex.lock();
     _ProcessingTaskErrorStatus = status;
     _ProcessingTaskErrorStatusMutex.unlock();
 }
 
-bool synchronizationAndStatusDealer::getProcessingTaskErrorStatus(){
+bool SynchronizationAndStatusDealer::getProcessingTaskErrorStatus(){
     bool status;
     _ProcessingTaskErrorStatusMutex.lock();
     status = _ProcessingTaskErrorStatus;

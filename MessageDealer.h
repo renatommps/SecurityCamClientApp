@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /* 
  * File:   messageDealer.h
  * Author: renato
@@ -17,11 +11,11 @@
 #include <iostream>     //std::cout, std::endl, std::cerr
 #include <string>       //std::string
 
-class messageDealer {
+class MessageDealer {
 public:
-    messageDealer();
-    messageDealer(const messageDealer& orig);
-    virtual ~messageDealer();
+    MessageDealer();
+    MessageDealer(const MessageDealer& orig);
+    virtual ~MessageDealer();
     static void showMessage(std::string message);
     static void showErrorMessage(std::string error);
 private:

@@ -5,20 +5,20 @@
  * Created on 30 de Agosto de 2016, 15:00
  */
 
-#include "processingTask.h"
+#include "ProcessingTask.h"
 
-processingTask::processingTask() {
+ProcessingTask::ProcessingTask() {
 }
 
-processingTask::processingTask(int capDeviceIndex, bufferManager *buffer, synchronizationAndStatusDealer *synchAndStatusDealer) :
+ProcessingTask::ProcessingTask(int capDeviceIndex, BufferManager *buffer, SynchronizationAndStatusDealer *synchAndStatusDealer) :
 _cap(capDeviceIndex), _frameBuffer(buffer), _synchAndStatusDealer(synchAndStatusDealer) {
 } // constructor
 
-processingTask::~processingTask() {
+ProcessingTask::~ProcessingTask() {
 }
 
-void processingTask::start() {
-    //messageDealer::showMessage("Processing task started.");
+void ProcessingTask::start() {
+    MessageDealer::showMessage("Processing task started.");
 
     /* abre o dispositivo de vídeo*/
     _executionError = openAndConfigureVideoDevice();
@@ -37,7 +37,7 @@ void processingTask::start() {
 
             int cont = 0;
             /* fluxo normal de execução*/
-            while (!_executionError && cont < 1000) {
+            while (!_executionError && cont < 200) {
 
                 /* atualiza o ultimo frame lido como sendo o frame atual
                  * (frames redimensionados, usado para processamento) */
@@ -56,7 +56,7 @@ void processingTask::start() {
 
                 /* FAZ O PROCESSAMENTO AQUI EM DIANTE!*/
 
-
+                MessageDealer::showMessage("cont: " + std::to_string(cont));
 
                 cont++;
             }
@@ -65,13 +65,13 @@ void processingTask::start() {
         } catch (std::exception & e) {
             _executionError = true;
             _synchAndStatusDealer->setProcessingTaskErrorStatus(true);
-            //messageDealer::showErrorMessage(std::string("Error in processing task : ") + std::string(e.what()));
+            MessageDealer::showErrorMessage(std::string("Error in processing task : ") + std::string(e.what()));
         }
     }
-    //messageDealer::showMessage("Processing thread finished execution!");
+    MessageDealer::showMessage("Processing thread finished execution!");
 }
 
-bool processingTask::openAndConfigureVideoDevice() {
+bool ProcessingTask::openAndConfigureVideoDevice() {
     bool statusError = false;
 
     try {
@@ -84,11 +84,11 @@ bool processingTask::openAndConfigureVideoDevice() {
         } else {
             _executionError = true;
             _synchAndStatusDealer->setProcessingTaskErrorStatus(true);
-            //messageDealer::showErrorMessage( std::string("Cannot open/configure the video device with index ") + std::to_string(_capDeviceIndex) );
+            MessageDealer::showErrorMessage(std::string("Cannot open/configure the video device with index ") + std::to_string(_capDeviceIndex));
         }
     } catch (std::exception & e) {
         statusError = true;
-        //messageDealer::showErrorMessage( std::string("Error in processing task : ") + std::string(e.what()) );
+        MessageDealer::showErrorMessage(std::string("Error in processing task : ") + std::string(e.what()));
     }
     return statusError;
 }

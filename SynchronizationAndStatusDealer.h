@@ -11,11 +11,11 @@
 #include <mutex>                // std::mutex, std::unique_lock
 
 
-class synchronizationAndStatusDealer {
+class SynchronizationAndStatusDealer {
 public:
-    synchronizationAndStatusDealer();
-    synchronizationAndStatusDealer(const synchronizationAndStatusDealer& orig);
-    virtual ~synchronizationAndStatusDealer();
+    SynchronizationAndStatusDealer();
+    SynchronizationAndStatusDealer(const SynchronizationAndStatusDealer& orig);
+    virtual ~SynchronizationAndStatusDealer();
     void setProcessingTaskErrorStatus(bool status);
     bool getProcessingTaskErrorStatus();
 private:
