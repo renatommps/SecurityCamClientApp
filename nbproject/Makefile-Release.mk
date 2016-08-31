@@ -38,7 +38,9 @@ OBJECTFILES= \
 	${OBJECTDIR}/bufferManager.o \
 	${OBJECTDIR}/main.o \
 	${OBJECTDIR}/messageDealer.o \
-	${OBJECTDIR}/processing_task.o
+	${OBJECTDIR}/processingTask.o \
+	${OBJECTDIR}/storageTask.o \
+	${OBJECTDIR}/synchronizationAndStatusDealer.o
 
 
 # C Compiler Flags
@@ -80,10 +82,20 @@ ${OBJECTDIR}/messageDealer.o: messageDealer.cpp
 	${RM} "$@.d"
 	$(COMPILE.cc) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/messageDealer.o messageDealer.cpp
 
-${OBJECTDIR}/processing_task.o: processing_task.cpp 
+${OBJECTDIR}/processingTask.o: processingTask.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/processing_task.o processing_task.cpp
+	$(COMPILE.cc) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/processingTask.o processingTask.cpp
+
+${OBJECTDIR}/storageTask.o: storageTask.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.cc) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/storageTask.o storageTask.cpp
+
+${OBJECTDIR}/synchronizationAndStatusDealer.o: synchronizationAndStatusDealer.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.cc) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/synchronizationAndStatusDealer.o synchronizationAndStatusDealer.cpp
 
 # Subprojects
 .build-subprojects:

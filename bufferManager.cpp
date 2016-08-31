@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /* 
  * File:   bufferManager.cpp
  * Author: renato
@@ -22,3 +16,12 @@ bufferManager::bufferManager(const bufferManager& orig) {
 bufferManager::~bufferManager() {
 }
 
+void bufferManager::pushBackFrame(cv::Mat frame) {
+    _bufferMutex.lock();
+    _frameBuffer.push_back(frame);
+    _bufferMutex.unlock();
+}
+
+cv::Mat bufferManager::popFrontFrame() {
+
+}

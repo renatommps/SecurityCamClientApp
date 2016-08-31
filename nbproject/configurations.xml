@@ -6,7 +6,9 @@
                    projectFiles="true">
       <itemPath>bufferManager.h</itemPath>
       <itemPath>messageDealer.h</itemPath>
-      <itemPath>processing_task.h</itemPath>
+      <itemPath>processingTask.h</itemPath>
+      <itemPath>storageTask.h</itemPath>
+      <itemPath>synchronizationAndStatusDealer.h</itemPath>
       <itemPath>zhelpers.hpp</itemPath>
     </logicalFolder>
     <logicalFolder name="SourceFiles"
@@ -15,7 +17,9 @@
       <itemPath>bufferManager.cpp</itemPath>
       <itemPath>main.cpp</itemPath>
       <itemPath>messageDealer.cpp</itemPath>
-      <itemPath>processing_task.cpp</itemPath>
+      <itemPath>processingTask.cpp</itemPath>
+      <itemPath>storageTask.cpp</itemPath>
+      <itemPath>synchronizationAndStatusDealer.cpp</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
                    displayName="Arquivos de Recurso"
@@ -100,9 +104,17 @@
       </item>
       <item path="messageDealer.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="processing_task.cpp" ex="false" tool="1" flavor2="0">
+      <item path="processingTask.cpp" ex="false" tool="1" flavor2="0">
       </item>
-      <item path="processing_task.h" ex="false" tool="3" flavor2="0">
+      <item path="processingTask.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="storageTask.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="storageTask.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="synchronizationAndStatusDealer.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="synchronizationAndStatusDealer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="zhelpers.hpp" ex="false" tool="3" flavor2="0">
       </item>
@@ -137,9 +149,17 @@
       </item>
       <item path="messageDealer.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="processing_task.cpp" ex="false" tool="1" flavor2="0">
+      <item path="processingTask.cpp" ex="false" tool="1" flavor2="0">
       </item>
-      <item path="processing_task.h" ex="false" tool="3" flavor2="0">
+      <item path="processingTask.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="storageTask.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="storageTask.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="synchronizationAndStatusDealer.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="synchronizationAndStatusDealer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="zhelpers.hpp" ex="false" tool="3" flavor2="0">
       </item>

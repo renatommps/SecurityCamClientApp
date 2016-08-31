@@ -22,8 +22,8 @@ public:
     messageDealer();
     messageDealer(const messageDealer& orig);
     virtual ~messageDealer();
-    void showMessage(std::string message);
-    void showErrorMessage(std::string error);
+    static void showMessage(std::string message);
+    static void showErrorMessage(std::string error);
 private:
 
 };

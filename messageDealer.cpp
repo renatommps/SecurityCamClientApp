@@ -22,10 +22,10 @@ messageDealer::messageDealer(const messageDealer& orig) {
 messageDealer::~messageDealer() {
 }
 
-void showMessage(std::string message) {
+static void showMessage(std::string message) {
  std::cout << message << std::endl; // show message on screen
 }
 
-void showErrorMessage(std::string error) {
+static void showErrorMessage(std::string error) {
  std::cerr << error << std::endl; // show error on screen
 }

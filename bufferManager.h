@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /* 
  * File:   bufferManager.h
  * Author: renato
@@ -14,7 +8,9 @@
 #ifndef BUFFERMANAGER_H
 #define BUFFERMANAGER_H
 
-#include <list>             // std::list
+#include <list>                 // std::list
+#include <mutex>                // std::mutex, std::unique_lock
+#include <opencv2/opencv.hpp>   // cv::Mat
 
 class bufferManager {
 public:
@@ -24,7 +20,8 @@ public:
     void pushBackFrame(cv::Mat frame);
     cv::Mat popFrontFrame();
 private:
-    std::list<cv::Mat> frameBuffer;
+    std::list<cv::Mat> _frameBuffer;
+    std::mutex _bufferMutex;
 };
 
 #endif /* BUFFERMANAGER_H */
