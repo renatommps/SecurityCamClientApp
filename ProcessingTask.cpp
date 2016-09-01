@@ -21,9 +21,9 @@ void ProcessingTask::start() {
     MessageDealer::showMessage("Processing task started.");
 
     /* abre o dispositivo de vídeo*/
-    _executionError = openAndConfigureVideoDevice();
+    _synchAndStatusDealer->setProcessingTaskErrorStatus(openAndConfigureVideoDevice());
 
-    while (!_executionError) {
+    while (!_synchAndStatusDealer->getTasksErrorStatus()) {
         try {
             /* lê frame do dispositivo de vídeo */
             _cap.read(_frame);
@@ -37,7 +37,7 @@ void ProcessingTask::start() {
 
             int cont = 0;
             /* fluxo normal de execução*/
-            while (!_executionError && cont < 200) {
+            while (!_synchAndStatusDealer->getTasksErrorStatus() && cont < 400) {
 
                 /* atualiza o ultimo frame lido como sendo o frame atual
                  * (frames redimensionados, usado para processamento) */
@@ -53,17 +53,18 @@ void ProcessingTask::start() {
                  * somente o frame redimensionado sera usado para processamento) */
                 cv::resize(_frame, _processedFrame, DEFAULT_PROCESSED_FRAME_SIZE, 0, 0, CV_INTER_AREA);
 
-
                 /* FAZ O PROCESSAMENTO AQUI EM DIANTE!*/
 
+                
+                
+                
+                
                 MessageDealer::showMessage("cont: " + std::to_string(cont));
 
                 cont++;
             }
-            _executionError = true;
-            _synchAndStatusDealer->setProcessingTaskErrorStatus(_executionError);
+            _synchAndStatusDealer->setProcessingTaskErrorStatus(true);
         } catch (std::exception & e) {
-            _executionError = true;
             _synchAndStatusDealer->setProcessingTaskErrorStatus(true);
             MessageDealer::showErrorMessage(std::string("Error in processing task : ") + std::string(e.what()));
         }

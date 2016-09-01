@@ -8,6 +8,8 @@
 #ifndef STORAGETASK_H
 #define STORAGETASK_H
 
+#include <chrono>           // std::chrono::milliseconds
+#include <thread>           // std::thread
 #include "MessageDealer.h"
 #include "BufferManager.h"
 #include "SynchronizationAndStatusDealer.h"

@@ -19,6 +19,8 @@ public:
     virtual ~BufferManager();
     void pushBackFrame(cv::Mat frame);
     cv::Mat popFrontFrame();
+    bool empty();
+    int size();
 private:
     std::list<cv::Mat> _frameBuffer;
     std::mutex _bufferMutex;

@@ -23,5 +23,32 @@ void BufferManager::pushBackFrame(cv::Mat frame) {
 }
 
 cv::Mat BufferManager::popFrontFrame() {
+    cv::Mat frame;
 
+    _bufferMutex.lock();
+    frame = _frameBuffer.front();
+    _frameBuffer.pop_front();
+    _bufferMutex.unlock();
+
+    return frame;
+}
+
+bool BufferManager::empty() {
+    bool empty;
+
+    _bufferMutex.lock();
+    empty = _frameBuffer.empty();
+    _bufferMutex.unlock();
+
+    return empty;
+}
+
+int BufferManager::size() {
+    int size;
+
+    _bufferMutex.lock();
+    size = _frameBuffer.size();
+    _bufferMutex.unlock();
+
+    return size;
 }
