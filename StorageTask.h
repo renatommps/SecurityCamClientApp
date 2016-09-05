@@ -10,6 +10,7 @@
 
 #include <chrono>           // std::chrono::milliseconds
 #include <thread>           // std::thread
+#include <opencv2/opencv.hpp>
 #include "MessageDealer.h"
 #include "BufferManager.h"
 #include "SynchronizationAndStatusDealer.h"

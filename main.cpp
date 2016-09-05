@@ -304,11 +304,11 @@ int main(int argc, char * argv[]) {
         exit(1);
     }
 
-    int capDeviceIndex;
+    //int capDeviceIndex;
     BufferManager frameBuffer;
     SynchronizationAndStatusDealer synchAndStatusDealer;
 
-    ProcessingTask pt(capDeviceIndex, &frameBuffer, &synchAndStatusDealer);
+    ProcessingTask pt(_capDeviceIndex, &frameBuffer, &synchAndStatusDealer);
     StorageTask st(&frameBuffer, &synchAndStatusDealer);
     ClientTask ct(_mac, _serverIP, _serverPort, &frameBuffer, &synchAndStatusDealer);
 
