@@ -17,13 +17,16 @@ public:
     virtual ~SynchronizationAndStatusDealer();
     void setProcessingTaskErrorStatus(bool status);
     void setStorageTaskErrorStatus(bool status);
-    bool getProcessingTaskErrorStatus();
+    void setProcessingTaskExecutionStatus(bool status);
+    bool ProcessingTaskHasError();
+    bool ProcessingTaskExecuting();
     bool getStorageTaskErrorStatus();
-    bool getTasksErrorStatus();
+    bool TasksHasError();
 private:
-    std::mutex _ProcessingTaskErrorStatusMutex;
+    std::mutex _ProcessingTaskStatusMutex;
     std::mutex _StorageTaskErrorStatusMutex;
     bool _ProcessingTaskErrorStatus;
+    bool _ProcessingTaskExecutionStatus;
     bool _StorageTaskErrorStatus;
 };
 

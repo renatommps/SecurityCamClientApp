@@ -25,6 +25,19 @@ const short int DEFAULT_WIDTH = 640; // width (largura) padão do frame
 const short int DEFAULT_HEIGHT = 480; // height (altura) padão do frame
 const short int DEFAULT_RESIZE_SCALE = 1; // fator usado para redimensionar o frame que sera processado (para aumentar a velocidade de processamento)
 const cv::Size DEFAULT_PROCESSED_FRAME_SIZE(DEFAULT_WIDTH / DEFAULT_RESIZE_SCALE, DEFAULT_HEIGHT / DEFAULT_RESIZE_SCALE); // tamanho do frame que sera processado
+const cv::Point FRAME_CENTER(DEFAULT_PROCESSED_FRAME_SIZE.width/2, DEFAULT_PROCESSED_FRAME_SIZE.height/2);
+
+enum Horizontal_direction {
+    left, right
+};
+
+enum Vertical_direction {
+    down, up
+};
+
+enum Quadrant {
+    down_left, down_right, up_left, up_right
+};
 
 class ProcessingTask {
 public:
@@ -49,7 +62,17 @@ private:
     int _numberOfChanges; // número de mudanças na matrix _result
     int _thereIsMotion; // se existe mais que '_thereIsMotion' pixels que mudaram, então é considerado que existe movimento
     int _maxDeviation; // desvio máximo da imagem, quanto maior o valor, mais movimento é aceito (motion)
-    int _numberOfSequence;
+    int _numberOfConsecutiveMotionSequence;
+    int _motion_min_x;
+    int _motion_min_y;
+    int _motion_max_x;
+    int _motion_max_y;
+    Horizontal_direction _horizontalDirection;
+    Quadrant _quadrant;
+    Vertical_direction _verticalDirection;
+    cv::Point _previousMotionCenter;
+    cv::Point _motionCenter;
+    cv::Rect _motion_rectangle;
     cv::Scalar _mean;
     cv::Scalar _color; // amarelo, a cor usada para desenhar um retangulo quando alguma coisa mudou (movimento)
     BufferManager *_frameBuffer;
@@ -57,6 +80,8 @@ private:
 
     bool openAndConfigureVideoDevice();
     int detectMotion();
+    void defineMotionDirection();
+    void defineMotionQuadrant();
 };
 
 #endif /* PROCESSINGTASK_H */

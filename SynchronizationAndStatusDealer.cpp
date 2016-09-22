@@ -19,9 +19,15 @@ SynchronizationAndStatusDealer::~SynchronizationAndStatusDealer() {
 }
 
 void SynchronizationAndStatusDealer::setProcessingTaskErrorStatus(bool status) {
-    _ProcessingTaskErrorStatusMutex.lock();
+    _ProcessingTaskStatusMutex.lock();
     _ProcessingTaskErrorStatus = status;
-    _ProcessingTaskErrorStatusMutex.unlock();
+    _ProcessingTaskStatusMutex.unlock();
+}
+
+void SynchronizationAndStatusDealer::setProcessingTaskExecutionStatus(bool status) {
+    _ProcessingTaskStatusMutex.lock();
+    _ProcessingTaskExecutionStatus = false;
+    _ProcessingTaskStatusMutex.unlock();
 }
 
 void SynchronizationAndStatusDealer::setStorageTaskErrorStatus(bool status) {
@@ -30,12 +36,22 @@ void SynchronizationAndStatusDealer::setStorageTaskErrorStatus(bool status) {
     _StorageTaskErrorStatusMutex.unlock();
 }
 
-bool SynchronizationAndStatusDealer::getProcessingTaskErrorStatus() {
+bool SynchronizationAndStatusDealer::ProcessingTaskHasError() {
     bool status;
 
-    _ProcessingTaskErrorStatusMutex.lock();
+    _ProcessingTaskStatusMutex.lock();
     status = _ProcessingTaskErrorStatus;
-    _ProcessingTaskErrorStatusMutex.unlock();
+    _ProcessingTaskStatusMutex.unlock();
+
+    return status;
+}
+
+bool SynchronizationAndStatusDealer::ProcessingTaskExecuting() {
+    bool status;
+
+    _ProcessingTaskStatusMutex.lock();
+    status = _ProcessingTaskExecutionStatus;
+    _ProcessingTaskStatusMutex.unlock();
 
     return status;
 }
@@ -50,11 +66,11 @@ bool SynchronizationAndStatusDealer::getStorageTaskErrorStatus() {
     return status;
 }
 
-bool SynchronizationAndStatusDealer::getTasksErrorStatus() {
+bool SynchronizationAndStatusDealer::TasksHasError() {
     bool status;
 
-    std::lock(_ProcessingTaskErrorStatusMutex, _StorageTaskErrorStatusMutex);
-    std::lock_guard<std::mutex> lk1(_ProcessingTaskErrorStatusMutex, std::adopt_lock);
+    std::lock(_ProcessingTaskStatusMutex, _StorageTaskErrorStatusMutex);
+    std::lock_guard<std::mutex> lk1(_ProcessingTaskStatusMutex, std::adopt_lock);
     std::lock_guard<std::mutex> lk2(_StorageTaskErrorStatusMutex, std::adopt_lock);
 
     status = _ProcessingTaskErrorStatus && _StorageTaskErrorStatus;
