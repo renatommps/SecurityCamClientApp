@@ -48,6 +48,7 @@ public:
 private:
     bool _executionError;
     int _capDeviceIndex;
+    
     cv::VideoCapture _cap;
     cv::Mat _rawFrame;
     cv::Mat _prevFrame;
@@ -59,6 +60,7 @@ private:
     cv::Mat resultCropped;
     cv::Mat _motion;
     cv::Mat _kernelErode; // kernel de erosão
+    
     int _numberOfChanges; // número de mudanças na matrix _result
     int _thereIsMotion; // se existe mais que '_thereIsMotion' pixels que mudaram, então é considerado que existe movimento
     int _maxDeviation; // desvio máximo da imagem, quanto maior o valor, mais movimento é aceito (motion)
@@ -67,19 +69,23 @@ private:
     int _motion_min_y;
     int _motion_max_x;
     int _motion_max_y;
+    
     Horizontal_direction _horizontalDirection;
-    Quadrant _quadrant;
     Vertical_direction _verticalDirection;
+    Quadrant _quadrant;
+    
     cv::Point _previousMotionCenter;
     cv::Point _motionCenter;
     cv::Rect _motion_rectangle;
     cv::Scalar _mean;
     cv::Scalar _color; // amarelo, a cor usada para desenhar um retangulo quando alguma coisa mudou (movimento)
+    
     BufferManager *_frameBuffer;
     SynchronizationAndStatusDealer *_synchAndStatusDealer;
 
     bool openAndConfigureVideoDevice();
     int detectMotion();
+    void resetBackgroundModelFrames();
     void defineMotionDirection();
     void defineMotionQuadrant();
 };
