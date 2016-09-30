@@ -16,6 +16,8 @@ ProcessingTask::ProcessingTask() {
 
     cv::Scalar myColor(0, 255, 255);
     _color = myColor;
+
+    _thereIsEvent = false;
 }
 
 ProcessingTask::ProcessingTask(int capDeviceIndex, BufferManager *buffer, SynchronizationAndStatusDealer *synchAndStatusDealer) :
@@ -28,6 +30,8 @@ _capDeviceIndex(capDeviceIndex), _frameBuffer(buffer), _synchAndStatusDealer(syn
 
     cv::Scalar myColor(0, 255, 255);
     _color = myColor;
+
+    _thereIsEvent = false;
 }
 
 ProcessingTask::~ProcessingTask() {
@@ -81,19 +85,25 @@ void ProcessingTask::start() {
             /* calcula a quantidade de movimento (número de mudanças de pixel */
             _numberOfChanges = detectMotion();
 
-            // se aconteçeram muitas mudanças, assumimos que algo mudou na imagem
-            if (_numberOfChanges >= _thereIsMotion) {
-                if (_numberOfConsecutiveMotionSequence > 1) {
-                    MessageDealer::showMessage("Existe evento ocorrendo, numero de sequencias: " + std::to_string(_numberOfConsecutiveMotionSequence));
-                    //                        saveImg(result, DIR, EXT, DIR_FORMAT.c_str(), FILE_FORMAT.c_str());
-                    //                        saveImg(result_cropped, DIR, EXT, DIR_FORMAT.c_str(), CROPPED_FILE_FORMAT.c_str());
-                }
-                _numberOfConsecutiveMotionSequence++;
+            /* verifica se já existe um evento em aberto (evento occorendo) */
+            if (_thereIsEvent) {
+                manageEvent();
             } else {
-                _numberOfConsecutiveMotionSequence = 0;
-                //cv::waitKey(DELAY);
+                /* se aconteçeram muitas mudanças, assumimos que algo mudou na imagem */
+                if (_thereIsValidMotion) {
+                    if (_numberOfConsecutiveMotionSequence > 1) {
+                        startEvent();
+                        manageEvent();
+                        //                        saveImg(result, DIR, EXT, DIR_FORMAT.c_str(), FILE_FORMAT.c_str());
+                        //                        saveImg(result_cropped, DIR, EXT, DIR_FORMAT.c_str(), CROPPED_FILE_FORMAT.c_str());
+                    }
+                    _numberOfConsecutiveMotionSequence++;
+                } else {
+                    _numberOfConsecutiveMotionSequence = 0;
+                }
             }
 
+            /* mostra os resultados da detecção de movimentos */
             cv::imshow("Motion", _motion);
             cv::imshow("Result", _result);
             if (cv::waitKey(30) >= 0) break;
@@ -110,6 +120,60 @@ void ProcessingTask::start() {
     }
 
     MessageDealer::showMessage("Processing thread finished execution!");
+}
+
+void ProcessingTask::startEvent() {
+    std::time_t time_now;
+    time(&time_now); // seta a variável com o horário atual
+
+    _thereIsEvent = true;
+    _eventStartTime = time_now;
+    _lastMotionDetectedTime = time_now;
+    _eventFramesCounter = 0;
+
+    MessageDealer::showMessage("Evento iniciado em " + std::string(time_now));
+}
+
+void ProcessingTask::manageEvent() {
+    std::time_t time_now;
+    time(&time_now); // seta a variável com o horário atual
+
+    if (_thereIsValidMotion) {
+        _lastMotionDetectedTime = time_now;
+        followDetectedMotion();
+    } else {
+        std::time_t event_duration = time_now - _eventStartTime;
+        std::time_t time_without_motion = time_now - _lastMotionDetectedTime;
+
+        bool no_motion = time_without_motion > EVENT_MAX_INACTIVITY_TIME;
+        bool event_max_time_reached = event_duration > EVENT_MAX_DURATION;
+
+        if (no_motion || event_max_time_reached) {
+            _thereIsEvent = false;
+            MessageDealer::showMessage("Evento finalizado em " + std::string(time_now));
+        } else {
+            _eventFramesCounter++;
+        }
+    }
+}
+
+void ProcessingTask::followDetectedMotion() {
+    /* movimentos horizontais */
+    if ((_quadrant == down_left || _quadrant == up_left) && (_horizontalDirection == left)) {
+        servoMoveLeft();
+    }
+    if ((_quadrant == down_right || _quadrant == up_right) && (_horizontalDirection == right)) {
+        servoMoveRight();
+    }
+
+    /* movimentos verticais */
+    if ((_quadrant == down_left || _quadrant == down_right) && (_verticalDirection == down)) {
+        servoMoveDown();
+    }
+    if ((_quadrant == up_left || _quadrant == up_right) && (_verticalDirection == up)) {
+        servoMoveUp()
+    }
+
 }
 
 void ProcessingTask::resetBackgroundModelFrames() {
@@ -141,7 +205,7 @@ void ProcessingTask::resetBackgroundModelFrames() {
     cvtColor(_nextFrame, _nextFrame, CV_BGR2GRAY);
 }
 
-int ProcessingTask::detectMotion() {
+void ProcessingTask::detectMotion() {
 
     cv::Scalar mean, stddev; // variancia e desvio padrão
 
@@ -183,7 +247,14 @@ int ProcessingTask::detectMotion() {
                 }
             }
         }
-        if (number_of_changes) { // number_of_changes > 0 significa true
+
+        if (_numberOfChanges >= _thereIsMotion) {
+            _thereIsValidMotion = true;
+        } else {
+            _thereIsValidMotion = false;
+        }
+
+        if (_thereIsValidMotion) { // number_of_changes > 0 significa true
             //check if not out of bounds
             //            if (_motion_min_x - 10 > 0) _motion_min_x -= 10;
             //            if (_motion_min_y - 10 > 0) _motion_min_y -= 10;
@@ -195,18 +266,18 @@ int ProcessingTask::detectMotion() {
             cv::Rect rect(x, y);
 
             _previousMotionCenter = _motionCenter;
-            _motionCenter = ((_motion_min_x + _motion_max_x / 2), (_motion_min_y + _motion_max_y / 2));
+            _motionCenter = cv::Point((_motion_min_x + _motion_max_x / 2), (_motion_min_y + _motion_max_y / 2));
 
             defineMotionDirection();
             defineMotionQuadrant();
 
-            //            /* "cropa" a imagem para apenas à area com movimento */
+            //            /* recorta a imagem para apenas à area com movimento */
             //            cv::Mat cropped = _result(rect);
             //            cropped.copyTo(resultCropped);
 
+            /* desenha um retangulo no contorno da area onde ocorreu movimento */
             cv::rectangle(_result, rect, _color, 1);
         }
-        return number_of_changes;
     }
     return 0;
 }
