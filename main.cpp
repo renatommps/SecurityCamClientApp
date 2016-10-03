@@ -33,12 +33,12 @@ static bool ProcessingTaskInNormalFunction();
 //const short int DEFAULT_RESIZE_SCALE = 4; // fator usado para redimensionar o frame que sera processado (para aumentar a velocidade de processamento)
 //const cv::Size DEFAULT_PROCESSED_FRAME_SIZE(DEFAULT_WIDTH / DEFAULT_RESIZE_SCALE, DEFAULT_HEIGHT / DEFAULT_RESIZE_SCALE); // tamanho do frame que sera processado
 
-const std::string SERVO_FILE = "/dev/servoblaster"; // arquivo onde deve ser gravada a posição do servo motor (usando )
-const short int SERVO_MIN_POSITION = 55; // posicao mínima que o servo motor pode assumir (posição da extrema direita)
-const short int SERVO_MAX_POSITION = 230; // posicao máxima que o servo motor pode assumir (posição da extrema esquerda)
-const short int SERVO_CENTRAL_POSITION = 120; //((SERVO_MAX_POSITION + SERVO_MIN_POSITION) / 2); // posição central do servo motor
-const short int SERVO_DEFAULT_STEP = 10; // tamanho normal do passo que o servo da a cada movimentação
-short int _servo_position = SERVO_CENTRAL_POSITION;
+//const std::string SERVO_FILE = "/dev/servoblaster"; // arquivo onde deve ser gravada a posição do servo motor (usando )
+//const short int SERVO_MIN_POSITION = 55; // posicao mínima que o servo motor pode assumir (posição da extrema direita)
+//const short int SERVO_MAX_POSITION = 230; // posicao máxima que o servo motor pode assumir (posição da extrema esquerda)
+//const short int SERVO_CENTRAL_POSITION = 120; //((SERVO_MAX_POSITION + SERVO_MIN_POSITION) / 2); // posição central do servo motor
+//const short int SERVO_DEFAULT_STEP = 10; // tamanho normal do passo que o servo da a cada movimentação
+//short int _servo_position = SERVO_CENTRAL_POSITION;
 
 //std::string _executablePath;
 //int _capDeviceIndex;
@@ -406,29 +406,29 @@ void setFrameParameters(cv::Mat * f, int * f_width, int * f_height, int * pf_wid
     std::cout << "Processed Frame size = " << *pf_width << "x" << *pf_height << ", area = " << (*pf_width) * (*pf_height) << std::endl;
 }
 
-void defineServoPosition(short int servo_channel, short int position) {
-    std::stringstream ss;
-    std::ofstream servo(SERVO_FILE);
-    std::string write;
-
-    if (position > SERVO_MAX_POSITION) {
-        _servo_position = SERVO_MAX_POSITION;
-
-    } else if (position < SERVO_MIN_POSITION) {
-        _servo_position = SERVO_MIN_POSITION;
-
-    } else {
-        _servo_position = position;
-    }
-
-    ss.str("");
-    ss << servo_channel << "=" << _servo_position << "\n";
-    write = ss.str();
-
-    servo << write;
-    servo.close();
-    cv::waitKey(30);
-}
+//void defineServoPosition(short int servo_channel, short int position) {
+//    std::stringstream ss;
+//    std::ofstream servo(SERVO_FILE);
+//    std::string write;
+//
+//    if (position > SERVO_MAX_POSITION) {
+//        _servo_position = SERVO_MAX_POSITION;
+//
+//    } else if (position < SERVO_MIN_POSITION) {
+//        _servo_position = SERVO_MIN_POSITION;
+//
+//    } else {
+//        _servo_position = position;
+//    }
+//
+//    ss.str("");
+//    ss << servo_channel << "=" << _servo_position << "\n";
+//    write = ss.str();
+//
+//    servo << write;
+//    servo.close();
+//    cv::waitKey(30);
+//}
 
 /* 
  * File:   main.cpp
