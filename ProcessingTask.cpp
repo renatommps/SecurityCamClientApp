@@ -18,9 +18,13 @@ ProcessingTask::ProcessingTask() {
     _color = myColor;
 
     _thereIsEvent = false;
+
+    _servoHorizontalMovementEnable = false;
+    _servoVerticalMovementEnable = false;
 }
 
-ProcessingTask::ProcessingTask(int capDeviceIndex, BufferManager *buffer, SynchronizationAndStatusDealer *synchAndStatusDealer) :
+ProcessingTask::ProcessingTask(int capDeviceIndex, bool horizontal_tracking, bool vertical_tracking,
+        BufferManager *buffer, SynchronizationAndStatusDealer *synchAndStatusDealer) :
 _capDeviceIndex(capDeviceIndex), _frameBuffer(buffer), _synchAndStatusDealer(synchAndStatusDealer) {
     _kernelErode = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
     _thereIsMotion = 5;
@@ -32,6 +36,9 @@ _capDeviceIndex(capDeviceIndex), _frameBuffer(buffer), _synchAndStatusDealer(syn
     _color = myColor;
 
     _thereIsEvent = false;
+
+    _servoHorizontalMovementEnable = horizontal_tracking;
+    _servoVerticalMovementEnable = vertical_tracking;
 }
 
 ProcessingTask::~ProcessingTask() {
@@ -156,28 +163,101 @@ void ProcessingTask::manageEvent() {
 }
 
 void ProcessingTask::followDetectedMotion() {
-    /* movimentos horizontais */
-    if ((_quadrant == down_left || _quadrant == up_left) && (_horizontalDirection == left)) {
-        servoMoveLeft();
-    }
-    if ((_quadrant == down_right || _quadrant == up_right) && (_horizontalDirection == right)) {
-        servoMoveRight();
+
+    /* definição do tamanho do passo horizontal */
+    if (_servoHorizontalMovementEnable) {
+        short int horizontal_step = 0;
+
+        if ((_motionCenter.x > FRAME_NEAR_CENTER_MAX_X) && (_motionCenter.x <= FRAME_NEAR_CENTER_MAX_X)) {
+            short int horizontal_step = HORIZONTAL_NORMAL_STEP;
+        } else if (_motionCenter.x > FRAME_NEAR_CENTER_MAX_X) {
+            short int horizontal_step = HORIZONTAL_LONG_STEP;
+        }
+
+        /* movimentos horizontais */
+        if (horizontal_step > 0) {
+            if ((_quadrant == down_left || _quadrant == up_left) && (_horizontalDirection == left)) {
+                servoHorizontalMovement(-horizontal_step); // valores negativos move para a esquerda
+            }
+            if ((_quadrant == down_right || _quadrant == up_right) && (_horizontalDirection == right)) {
+                servoHorizontalMovement(+horizontal_step); // valores positivos move para a direita
+            }
+        }
     }
 
-    /* movimentos verticais */
-    if ((_quadrant == down_left || _quadrant == down_right) && (_verticalDirection == down)) {
-        servoMoveDown();
+    /* definição do tamanho do passo vertical */
+    if (_servoVerticalMovementEnable) {
+        short int vertical_step = 0;
+
+        if ((_motionCenter.y > FRAME_NEAR_CENTER_MAX_Y) && (_motionCenter.y <= FRAME_NEAR_CENTER_MAX_Y)) {
+            short int vertical_step = HORIZONTAL_NORMAL_STEP;
+        } else if (_motionCenter.y > FRAME_NEAR_CENTER_MAX_Y) {
+            short int vertical_step = HORIZONTAL_LONG_STEP;
+        }
+
+        if (vertical_step > 0) {
+            /* movimentos verticais */
+            if ((_quadrant == down_left || _quadrant == down_right) && (_verticalDirection == down)) {
+                servoVerticalMovement(-vertical_step); // valores positivos move para baixo
+            }
+            if ((_quadrant == up_left || _quadrant == up_right) && (_verticalDirection == up)) {
+                servoVerticalMovement(+vertical_step); // valores positivos move para cima
+            }
+        }
     }
-    if ((_quadrant == up_left || _quadrant == up_right) && (_verticalDirection == up)) {
-        servoMoveUp();
+}
+
+void ProcessingTask::servoHorizontalMovement(short int value) {
+    std::stringstream ss;
+    std::ofstream servo(SERVO_FILE);
+    std::string write;
+    short int position = _servoHorizontalPosition + value;
+
+    if (position > SERVO_MAX_POSITION) {
+        _servoHorizontalPosition = SERVO_MAX_POSITION;
+    } else if (position < SERVO_MIN_POSITION) {
+        _servoHorizontalPosition = SERVO_MIN_POSITION;
+    } else {
+        _servoHorizontalPosition = position;
     }
+
+    ss.str("");
+    ss << SERVOBLASTER_HORIZONTAL_MOVEMENT_CHANNEL_INDEX << "=" << _servoHorizontalPosition << "\n";
+    write = ss.str();
+
+    servo << write;
+    servo.close();
+    //cv::waitKey(DELAY);
+}
+
+void ProcessingTask::servoVerticalMovement(short int value) {
+    std::stringstream ss;
+    std::ofstream servo(SERVO_FILE);
+    std::string write;
+    short int position = _servoVerticalPosition + value;
+
+    if (position > SERVO_MAX_POSITION) {
+        _servoVerticalPosition = SERVO_MAX_POSITION;
+    } else if (position < SERVO_MIN_POSITION) {
+        _servoVerticalPosition = SERVO_MIN_POSITION;
+    } else {
+        _servoVerticalPosition = position;
+    }
+
+    ss.str("");
+    ss << SERVOBLASTER_VERTICAL_MOVEMENT_CHANNEL_INDEX << "=" << _servoVerticalPosition << "\n";
+    write = ss.str();
+
+    servo << write;
+    servo.close();
+    //cv::waitKey(DELAY);
 }
 
 void ProcessingTask::resetBackgroundModelFrames() {
 
     /* reseta os centros de movimento para o meio do frame */
-    _previousMotionCenter = FRAME_CENTER;
-    _motionCenter = FRAME_CENTER;
+    _previousMotionCenter = DEFAULT_PROCESSED_FRAME_CENTER;
+    _motionCenter = DEFAULT_PROCESSED_FRAME_CENTER;
 
     /* lê o primeiro frame (frame anterior) */
     _cap.read(_rawFrame);
@@ -297,10 +377,10 @@ void ProcessingTask::defineMotionDirection() {
 }
 
 void ProcessingTask::defineMotionQuadrant() {
-    if (_motionCenter.x < FRAME_CENTER.x && _motionCenter.y < FRAME_CENTER.y) _quadrant = down_left;
-    if (_motionCenter.x >= FRAME_CENTER.x && _motionCenter.y < FRAME_CENTER.y) _quadrant = down_right;
-    if (_motionCenter.x >= FRAME_CENTER.x && _motionCenter.y >= FRAME_CENTER.y) _quadrant = up_right;
-    if (_motionCenter.x < FRAME_CENTER.x && _motionCenter.y >= FRAME_CENTER.y) _quadrant = up_left;
+    if (_motionCenter.x < DEFAULT_PROCESSED_FRAME_CENTER.x && _motionCenter.y < DEFAULT_PROCESSED_FRAME_CENTER.y) _quadrant = down_left;
+    if (_motionCenter.x >= DEFAULT_PROCESSED_FRAME_CENTER.x && _motionCenter.y < DEFAULT_PROCESSED_FRAME_CENTER.y) _quadrant = down_right;
+    if (_motionCenter.x >= DEFAULT_PROCESSED_FRAME_CENTER.x && _motionCenter.y >= DEFAULT_PROCESSED_FRAME_CENTER.y) _quadrant = up_right;
+    if (_motionCenter.x < DEFAULT_PROCESSED_FRAME_CENTER.x && _motionCenter.y >= DEFAULT_PROCESSED_FRAME_CENTER.y) _quadrant = up_left;
 }
 
 bool ProcessingTask::openAndConfigureVideoDevice() {

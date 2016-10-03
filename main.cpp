@@ -284,9 +284,19 @@ int main(int argc, char * argv[]) {
     std::string _serverIP;
     std::string _serverPort; // = "5570";
     std::string _mac;
+    bool _horizontal_tracking;
+    bool _vertical_tracking;
 
-    if (argc < 4) { // É esperado 4 argumentos: o nome do programa (por padrão é passado),o índice do dispositivo de vídeo, o IP do server, e a porta do server
-        MessageDealer::showErrorMessage("Usage: " + std::string(argv[0]) + " <VIDEO DEVICE INDEX> <SERVER IP> <SERVER PORT>");
+    /* É esperado 6 argumentos: o nome do programa (por padrão é passado),
+     * o índice do dispositivo de vídeo, o IP do server, a porta do server,
+     * um número indicando se deve ser feito tracking horizontal e vertical
+     * com o servo, são dois números separados por espaço, 0 indicando que não deve ser feito,
+     * e 1 undicando que deve, para tracking horizontal e vertical, respectivamente */
+    if (argc < 6) {
+        MessageDealer::showErrorMessage("Usage: " + std::string(argv[0]) +
+                " <VIDEO DEVICE INDEX> <SERVER IP> <SERVER PORT> "
+                "<HORIZONTAL TRACKING [0 = false, 1 = true]> "
+                "<VERTICAL TRACKING [0 = false, 1 = true]>");
         exit(1);
 
     } else {
@@ -294,9 +304,17 @@ int main(int argc, char * argv[]) {
         _capDeviceIndex = atoi(argv[1]);
         _serverIP = argv[2];
         _serverPort = argv[3];
-        MessageDealer::showMessage("executablePath: " + _executablePath +
-                ", capture device index: " + std::to_string(_capDeviceIndex) +
-                ", server IP: " + _serverIP + ", server port: " + _serverPort);
+        (std::strcmp(argv[4], "1") == 0) ? _horizontal_tracking = true : _horizontal_tracking = false;
+        (std::strcmp(argv[5], "1") == 0) ? _vertical_tracking = true : _vertical_tracking = false;
+
+        MessageDealer::showMessage(
+                "\nExecutablePath: " + _executablePath +
+                "\nCapture device index: " + std::to_string(_capDeviceIndex) +
+                "\nServer IP: " + _serverIP +
+                "\nServer port: " + _serverPort +
+                "\nHorizontal tracking enabled: " + (_horizontal_tracking == 1 ? "true" : "false") +
+                "\nVertical tracking enabled: " + (_vertical_tracking == 1 ? "true" : "false") +
+                "\n");
     }
 
     if (!setClientName(&_mac)) {
@@ -308,7 +326,7 @@ int main(int argc, char * argv[]) {
     BufferManager frameBuffer;
     SynchronizationAndStatusDealer synchAndStatusDealer;
 
-    ProcessingTask pt(_capDeviceIndex, &frameBuffer, &synchAndStatusDealer);
+    ProcessingTask pt(_capDeviceIndex, _horizontal_tracking, _vertical_tracking, &frameBuffer, &synchAndStatusDealer);
     StorageTask st(&frameBuffer, &synchAndStatusDealer);
     ClientTask ct(_mac, _serverIP, _serverPort, &frameBuffer, &synchAndStatusDealer);
 

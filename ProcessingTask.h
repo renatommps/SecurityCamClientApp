@@ -15,7 +15,9 @@
 #include <dirent.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <ctime> //std::time_t
+#include <ctime>        //std::time_t
+#include <fstream>      //std::ofstream
+#include <sstream>      // std::stringstream
 
 #include "MessageDealer.h"
 #include "BufferManager.h"
@@ -26,16 +28,38 @@ const short int DEFAULT_WIDTH = 640; // width (largura) padão do frame
 const short int DEFAULT_HEIGHT = 480; // height (altura) padão do frame
 const short int DEFAULT_RESIZE_SCALE = 1; // fator usado para redimensionar o frame que sera processado (para aumentar a velocidade de processamento)
 const cv::Size DEFAULT_PROCESSED_FRAME_SIZE(DEFAULT_WIDTH / DEFAULT_RESIZE_SCALE, DEFAULT_HEIGHT / DEFAULT_RESIZE_SCALE); // tamanho do frame que sera processado
-const cv::Point FRAME_CENTER(DEFAULT_PROCESSED_FRAME_SIZE.width / 2, DEFAULT_PROCESSED_FRAME_SIZE.height / 2);
+const short int DEFAULT_PROCESSED_FRAME_HORIZONTAL_RADIUS = DEFAULT_PROCESSED_FRAME_SIZE.width / 2;
+const short int DEFAULT_PROCESSED_FRAME_VERTICAL_RADIUS = DEFAULT_PROCESSED_FRAME_SIZE.height / 2;
+const cv::Point DEFAULT_PROCESSED_FRAME_CENTER(DEFAULT_PROCESSED_FRAME_HORIZONTAL_RADIUS, DEFAULT_PROCESSED_FRAME_VERTICAL_RADIUS);
+
 const int EVENT_MAX_INACTIVITY_TIME = 10; // tempo em segundos
 const int EVENT_MAX_DURATION = 600; // tempo em segundos (10 minutos)
 
-const int HORIZONTAL_SHORT_STEP = 1;
 const int HORIZONTAL_NORMAL_STEP = 5;
 const int HORIZONTAL_LONG_STEP = 10;
-const int VERTICAL_SHORT_STEP = 1;
 const int VERTICAL_NORMAL_STEP = 5;
 const int VERTICAL_LONG_STEP = 10;
+
+const int FRAME_NEAR_CENTER_WIDTH = (10 / DEFAULT_PROCESSED_FRAME_HORIZONTAL_RADIUS) * 100;
+const int FRAME_CENTER_AREA_WIDTH = (60 / DEFAULT_PROCESSED_FRAME_HORIZONTAL_RADIUS) * 100;
+const int FRAME_NEAR_MARGIN_WIDTH = (130 / DEFAULT_PROCESSED_FRAME_HORIZONTAL_RADIUS) * 100;
+
+const int FRAME_NEAR_CENTER_HEIGHT = (10 / DEFAULT_PROCESSED_FRAME_HORIZONTAL_RADIUS) * 100;
+const int FRAME_CENTER_AREA_HEIGHT = (60 / DEFAULT_PROCESSED_FRAME_HORIZONTAL_RADIUS) * 100;
+const int FRAME_NEAR_MARGIN_HEIGHT = (130 / DEFAULT_PROCESSED_FRAME_HORIZONTAL_RADIUS) * 100;
+
+const int FRAME_NEAR_CENTER_MAX_X = DEFAULT_PROCESSED_FRAME_CENTER.x + FRAME_NEAR_CENTER_WIDTH;
+const int FRAME_CENTER_AREA_MAX_X = DEFAULT_PROCESSED_FRAME_CENTER.x + FRAME_CENTER_AREA_WIDTH + FRAME_NEAR_CENTER_MAX_X;
+
+const int FRAME_NEAR_CENTER_MAX_Y = DEFAULT_PROCESSED_FRAME_CENTER.y + FRAME_NEAR_CENTER_HEIGHT;
+const int FRAME_CENTER_AREA_MAX_Y = DEFAULT_PROCESSED_FRAME_CENTER.y + FRAME_CENTER_AREA_HEIGHT + FRAME_NEAR_CENTER_MAX_X;
+
+const int SERVO_MAX_POSITION = 230; // posicao máxima que o servo motor pode assumir (posição da extrema esquerda)
+const int SERVO_MIN_POSITION = 55; // posicao mínima que o servo motor pode assumir (posição da extrema direita)
+
+const std::string SERVO_FILE = "/dev/servoblaster"; // arquivo onde deve ser gravada a posição do servomotor
+const short int SERVOBLASTER_HORIZONTAL_MOVEMENT_CHANNEL_INDEX = 2;
+const short int SERVOBLASTER_VERTICAL_MOVEMENT_CHANNEL_INDEX = 3;
 
 enum Horizontal_direction {
     left, right
@@ -52,7 +76,8 @@ enum Quadrant {
 class ProcessingTask {
 public:
     ProcessingTask();
-    ProcessingTask(int capDeviceIndex, BufferManager *buffer, SynchronizationAndStatusDealer *synchAndStatusDealer);
+    ProcessingTask(int capDeviceIndex, bool horizontal_tracking, bool vertical_tracking,
+            BufferManager *buffer, SynchronizationAndStatusDealer *synchAndStatusDealer);
     virtual ~ProcessingTask();
     void start();
 private:
@@ -99,6 +124,11 @@ private:
     std::time_t _lastMotionDetectedTime;
     int _eventFramesCounter;
 
+    bool _servoHorizontalMovementEnable;
+    bool _servoVerticalMovementEnable;
+    short int _servoHorizontalPosition;
+    short int _servoVerticalPosition;
+
     bool openAndConfigureVideoDevice();
     void detectMotion();
     void followDetectedMotion();
@@ -108,6 +138,8 @@ private:
     void startEvent();
     void manageEvent();
 
+    void servoHorizontalMovement(short int value);
+    void servoVerticalMovement(short int value);
 };
 
 #endif /* PROCESSINGTASK_H */
