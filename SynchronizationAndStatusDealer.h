@@ -22,12 +22,16 @@ public:
     bool ProcessingTaskExecuting();
     bool getStorageTaskErrorStatus();
     bool TasksHasError();
+    void setMotionEventStatus(bool status);
+    bool getMotionEventStatus();
 private:
     std::mutex _ProcessingTaskStatusMutex;
     std::mutex _StorageTaskErrorStatusMutex;
+    std::mutex _MotionEventStatusMutex;
     bool _ProcessingTaskErrorStatus;
     bool _ProcessingTaskExecutionStatus;
     bool _StorageTaskErrorStatus;
+    bool _motionEventStatus;
 };
 
 #endif /* SYNCHRONIZATIONANDSTATUSDEALER_H */

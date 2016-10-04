@@ -17,7 +17,7 @@ ProcessingTask::ProcessingTask() {
     cv::Scalar myColor(0, 255, 255);
     _color = myColor;
 
-    _thereIsEvent = false;
+    _synchAndStatusDealer->setMotionEventStatus(false);
 
     _servoHorizontalMovementEnable = false;
     _servoVerticalMovementEnable = false;
@@ -35,7 +35,7 @@ _capDeviceIndex(capDeviceIndex), _frameBuffer(buffer), _synchAndStatusDealer(syn
     cv::Scalar myColor(0, 255, 255);
     _color = myColor;
 
-    _thereIsEvent = false;
+    _synchAndStatusDealer->setMotionEventStatus(false);
 
     _servoHorizontalMovementEnable = horizontal_tracking;
     _servoVerticalMovementEnable = vertical_tracking;
@@ -93,7 +93,7 @@ void ProcessingTask::start() {
             detectMotion();
 
             /* verifica se já existe um evento em aberto (evento occorendo) */
-            if (_thereIsEvent) {
+            if (_synchAndStatusDealer->getMotionEventStatus()) {
                 manageEvent();
             } else {
                 /* se aconteçeram muitas mudanças, assumimos que algo mudou na imagem */
@@ -132,7 +132,7 @@ void ProcessingTask::start() {
 void ProcessingTask::startEvent() {
     std::time_t time_now = std::time(NULL);
 
-    _thereIsEvent = true;
+    _synchAndStatusDealer->setMotionEventStatus(true);
     _eventStartTime = time_now;
     _lastMotionDetectedTime = time_now;
     _eventFramesCounter = 0;
@@ -154,7 +154,7 @@ void ProcessingTask::manageEvent() {
         bool event_max_time_reached = event_duration > EVENT_MAX_DURATION;
 
         if (no_motion || event_max_time_reached) {
-            _thereIsEvent = false;
+            _synchAndStatusDealer->setMotionEventStatus(false);
             MessageDealer::showMessage("Evento finalizado em " + std::to_string(time_now));
         } else {
             _eventFramesCounter++;
@@ -163,7 +163,6 @@ void ProcessingTask::manageEvent() {
 }
 
 void ProcessingTask::followDetectedMotion() {
-
     /* definição do tamanho do passo horizontal */
     if (_servoHorizontalMovementEnable) {
         short int horizontal_step = 0;
@@ -254,7 +253,6 @@ void ProcessingTask::servoVerticalMovement(short int value) {
 }
 
 void ProcessingTask::resetBackgroundModelFrames() {
-
     /* reseta os centros de movimento para o meio do frame */
     _previousMotionCenter = DEFAULT_PROCESSED_FRAME_CENTER;
     _motionCenter = DEFAULT_PROCESSED_FRAME_CENTER;
@@ -283,7 +281,6 @@ void ProcessingTask::resetBackgroundModelFrames() {
 }
 
 void ProcessingTask::detectMotion() {
-
     cv::Scalar mean, stddev; // variancia e desvio padrão
 
     /* The stddev tells us something about the distribution of motion.

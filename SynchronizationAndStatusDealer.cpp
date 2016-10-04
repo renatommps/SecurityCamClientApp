@@ -9,10 +9,12 @@
 
 SynchronizationAndStatusDealer::SynchronizationAndStatusDealer() {
     _ProcessingTaskErrorStatus = false;
+    _motionEventStatus = false;
 }
 
 SynchronizationAndStatusDealer::SynchronizationAndStatusDealer(const SynchronizationAndStatusDealer& orig) {
     _ProcessingTaskErrorStatus = false;
+    _motionEventStatus = false;
 }
 
 SynchronizationAndStatusDealer::~SynchronizationAndStatusDealer() {
@@ -26,7 +28,7 @@ void SynchronizationAndStatusDealer::setProcessingTaskErrorStatus(bool status) {
 
 void SynchronizationAndStatusDealer::setProcessingTaskExecutionStatus(bool status) {
     _ProcessingTaskStatusMutex.lock();
-    _ProcessingTaskExecutionStatus = false;
+    _ProcessingTaskExecutionStatus = status;
     _ProcessingTaskStatusMutex.unlock();
 }
 
@@ -74,7 +76,22 @@ bool SynchronizationAndStatusDealer::TasksHasError() {
     std::lock_guard<std::mutex> lk2(_StorageTaskErrorStatusMutex, std::adopt_lock);
 
     status = _ProcessingTaskErrorStatus && _StorageTaskErrorStatus;
-    
+
     return status;
 }
 
+void SynchronizationAndStatusDealer::setMotionEventStatus(bool status) {
+    _MotionEventStatusMutex.lock();
+    _motionEventStatus = status;
+    _MotionEventStatusMutex.unlock();
+}
+
+bool SynchronizationAndStatusDealer::getMotionEventStatus() {
+    bool status;
+
+    _MotionEventStatusMutex.lock();
+    status = _motionEventStatus;
+    _MotionEventStatusMutex.unlock();
+
+    return status;
+}

@@ -119,7 +119,7 @@ private:
     BufferManager *_frameBuffer;
     SynchronizationAndStatusDealer *_synchAndStatusDealer;
 
-    bool _thereIsEvent;
+    bool _MotionEvent;
     std::time_t _eventStartTime;
     std::time_t _lastMotionDetectedTime;
     int _eventFramesCounter;
