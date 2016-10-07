@@ -53,7 +53,7 @@ void ProcessingTask::start() {
     try {
         /* lê 3 frame (anterior, atual, e próximo) para criar o background model */
         resetBackgroundModelFrames();
-
+        
         int cont = 0;
         /* fluxo normal de execução*/
         while (!_synchAndStatusDealer->ProcessingTaskHasError() && cont < 400) {
