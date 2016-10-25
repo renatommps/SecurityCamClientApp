@@ -24,13 +24,14 @@ ProcessingTask::ProcessingTask() {
 }
 
 ProcessingTask::ProcessingTask(int capDeviceIndex, bool horizontal_tracking, bool vertical_tracking,
-        BufferManager *buffer, SynchronizationAndStatusDealer *synchAndStatusDealer) :
+        BufferManager *buffer, SynchronizationAndStatusDealer *synchAndStatusDealer, bool show_motion) :
 _capDeviceIndex(capDeviceIndex), _frameBuffer(buffer), _synchAndStatusDealer(synchAndStatusDealer) {
     _kernelErode = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
     _thereIsMotion = 5;
     _maxDeviation = 20;
     _numberOfChanges = 0;
     _numberOfConsecutiveMotionSequence = 0;
+    _showMotion = _showMotion;
 
     cv::Scalar myColor(0, 255, 255);
     _color = myColor;
@@ -53,10 +54,9 @@ void ProcessingTask::start() {
     try {
         /* lê 3 frame (anterior, atual, e próximo) para criar o background model */
         resetBackgroundModelFrames();
-        
-        int cont = 0;
+
         /* fluxo normal de execução*/
-        while (!_synchAndStatusDealer->ProcessingTaskHasError() && cont < 400) {
+        while (!_synchAndStatusDealer->ProcessingTaskHasError()) {
 
             /* atualiza o frame anterior e o frame corrente */
             _prevFrame = _currentFrame;
@@ -113,11 +113,8 @@ void ProcessingTask::start() {
             /* mostra os resultados da detecção de movimentos */
             cv::imshow("Motion", _motion);
             cv::imshow("Result", _result);
+
             if (cv::waitKey(30) >= 0) break;
-
-            MessageDealer::showMessage("cont: " + std::to_string(cont));
-
-            cont++;
         }
         MessageDealer::showMessage("Processing thread exit while loop!");
         _synchAndStatusDealer->setProcessingTaskExecutionStatus(false);
@@ -337,10 +334,15 @@ void ProcessingTask::detectMotion() {
             //            if (_motion_max_y + 10 < _result.rows - 1) _motion_max_y += 10;
              */
 
-            // draw rectangle round the changed pixel
-            cv::Point x(_motion_min_x, _motion_min_y);
-            cv::Point y(_motion_max_x, _motion_max_y);
-            cv::Rect rect(x, y);
+            if (_showMotion) {
+                // draw rectangle round the changed pixel
+                cv::Point x(_motion_min_x, _motion_min_y);
+                cv::Point y(_motion_max_x, _motion_max_y);
+                cv::Rect rect(x, y);
+
+                /* desenha um retangulo no contorno da area onde ocorreu movimento */
+                cv::rectangle(_result, rect, _color, 1);
+            }
 
             _previousMotionCenter = _motionCenter;
             _motionCenter = cv::Point((_motion_min_x + _motion_max_x / 2), (_motion_min_y + _motion_max_y / 2));
@@ -352,9 +354,6 @@ void ProcessingTask::detectMotion() {
             //            cv::Mat cropped = _result(rect);
             //            cropped.copyTo(resultCropped);
              */
-
-            /* desenha um retangulo no contorno da area onde ocorreu movimento */
-            cv::rectangle(_result, rect, _color, 1);
         }
     }
 }

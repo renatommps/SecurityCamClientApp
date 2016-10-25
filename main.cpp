@@ -286,17 +286,19 @@ int main(int argc, char * argv[]) {
     std::string _mac;
     bool _horizontal_tracking;
     bool _vertical_tracking;
+    bool _show_motion;
 
     /* É esperado 6 argumentos: o nome do programa (por padrão é passado),
      * o índice do dispositivo de vídeo, o IP do server, a porta do server,
      * um número indicando se deve ser feito tracking horizontal e vertical
      * com o servo, são dois números separados por espaço, 0 indicando que não deve ser feito,
      * e 1 undicando que deve, para tracking horizontal e vertical, respectivamente */
-    if (argc < 6) {
+    if (argc < 7) {
         MessageDealer::showErrorMessage("Usage: " + std::string(argv[0]) +
                 " <VIDEO DEVICE INDEX> <SERVER IP> <SERVER PORT> "
                 "<HORIZONTAL TRACKING [0 = false, 1 = true]> "
-                "<VERTICAL TRACKING [0 = false, 1 = true]>");
+                "<VERTICAL TRACKING [0 = false, 1 = true]>"
+                "<SHOW MOTION [0 = false, 1 = true]>");
         exit(1);
 
     } else {
@@ -306,6 +308,7 @@ int main(int argc, char * argv[]) {
         _serverPort = argv[3];
         (std::strcmp(argv[4], "1") == 0) ? _horizontal_tracking = true : _horizontal_tracking = false;
         (std::strcmp(argv[5], "1") == 0) ? _vertical_tracking = true : _vertical_tracking = false;
+        (std::strcmp(argv[6], "1") == 0) ? _show_motion = true : _show_motion = false;
 
         MessageDealer::showMessage(
                 "\nExecutablePath: " + _executablePath +
@@ -326,7 +329,7 @@ int main(int argc, char * argv[]) {
     BufferManager frameBuffer;
     SynchronizationAndStatusDealer synchAndStatusDealer;
 
-    ProcessingTask pt(_capDeviceIndex, _horizontal_tracking, _vertical_tracking, &frameBuffer, &synchAndStatusDealer);
+    ProcessingTask pt(_capDeviceIndex, _horizontal_tracking, _vertical_tracking, &frameBuffer, &synchAndStatusDealer, _show_motion);
     StorageTask st(&frameBuffer, &synchAndStatusDealer);
     ClientTask ct(_mac, _serverIP, _serverPort, &frameBuffer, &synchAndStatusDealer);
 

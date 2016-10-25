@@ -27,8 +27,9 @@
           <runcommandpicklistitem>"${OUTPUT_PATH}"</runcommandpicklistitem>
           <runcommandpicklistitem>"${OUTPUT_PATH}"  0 150.162.202.42 5577</runcommandpicklistitem>
           <runcommandpicklistitem>"${OUTPUT_PATH}"  0 150.162.202.42 5577 1 0</runcommandpicklistitem>
+          <runcommandpicklistitem>"${OUTPUT_PATH}"  0 150.162.202.42 5577 1 0 1</runcommandpicklistitem>
         </runcommandpicklist>
-        <runcommand>"${OUTPUT_PATH}"  0 150.162.202.42 5577 1 0</runcommand>
+        <runcommand>"${OUTPUT_PATH}"  0 150.162.202.42 5577 1 0 1</runcommand>
         <rundir></rundir>
         <buildfirst>true</buildfirst>
         <terminal-type>0</terminal-type>

@@ -77,7 +77,7 @@ class ProcessingTask {
 public:
     ProcessingTask();
     ProcessingTask(int capDeviceIndex, bool horizontal_tracking, bool vertical_tracking,
-            BufferManager *buffer, SynchronizationAndStatusDealer *synchAndStatusDealer);
+            BufferManager *buffer, SynchronizationAndStatusDealer *synchAndStatusDealer, bool show_motion);
     virtual ~ProcessingTask();
     void start();
 private:
@@ -105,7 +105,8 @@ private:
     int _motion_max_x;
     int _motion_max_y;
     bool _thereIsValidMotion;
-
+    bool _showMotion;
+    
     Horizontal_direction _horizontalDirection;
     Vertical_direction _verticalDirection;
     Quadrant _quadrant;
