@@ -5,6 +5,8 @@
  * Created on 30 de Agosto de 2016, 15:00
  */
 
+#include <videoio.hpp>
+
 #include "ProcessingTask.h"
 
 ProcessingTask::ProcessingTask() {
@@ -116,9 +118,11 @@ void ProcessingTask::start() {
 
             if (cv::waitKey(30) >= 0) break;
         }
-        MessageDealer::showMessage("Processing thread exit while loop!");
+        _cap.release();
         _synchAndStatusDealer->setProcessingTaskExecutionStatus(false);
+        MessageDealer::showMessage("Processing thread exit while loop!");
     } catch (std::exception & e) {
+        _cap.release();
         _synchAndStatusDealer->setProcessingTaskErrorStatus(true);
         MessageDealer::showErrorMessage(std::string("Error in processing task : ") + std::string(e.what()));
     }
@@ -278,9 +282,10 @@ void ProcessingTask::resetBackgroundModelFrames() {
 }
 
 void ProcessingTask::detectMotion() {
-    cv::Scalar mean, stddev; // variancia e desvio padrão
+    cv::Scalar mean, stddev; // mean: variancia, stddev: desvio padrão, cv::Scalar: 4-element vector derived from Vec
 
-    /* The stddev tells us something about the distribution of motion.
+    /* 
+     * The stddev tells us something about the distribution of motion.
      * When motion is specific at a single point let's say a human which is
      * relative small against the size of the viewport (far away from the camera)
      * then the motion will be concentrated in a single point/pixel, in this case
@@ -291,7 +296,17 @@ void ProcessingTask::detectMotion() {
      * Notice that in some scenarios, eg. public places, high distributions are
      * normal and this assumption fails.
      */
+
+    /*
+     * C++: void meanStdDev(InputArray src, OutputArray mean, OutputArray stddev, InputArray mask=noArray())
+     * Parameters:
+     * src – input array that should have from 1 to 4 channels so that the results can be stored in Scalar_ ‘s.
+     * mean – output parameter: calculated mean value.
+     * stddev – output parameter: calculateded standard deviation.
+     * mask – optional operation mask.
+     */
     cv::meanStdDev(_motion, mean, stddev); // calcula a variância e desvio padrão de uma imagem
+    MessageDealer::showMessage("mean: " + std::to_string(mean[0]) + ", " + "stddev: " + std::to_string(stddev[0]));
 
     /* se não tem uma quantidade muito grande de mudanças (menor que _maxDeviation),
      * então a movimentação (motion) é real (evita falsos positivos por causa de ruidos) */
