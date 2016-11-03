@@ -152,6 +152,7 @@ void ProcessingTask::startEvent() {
     std::string video_name = getFormatedTime(time_now, "%Y-%m-%d-%H-%M-%S");
     std::string video_extention = ".avi";
 
+    MessageDealer::showMessage("Vai tentar iniciar evento...");
     _event = new Event(event_id, _eventsStoragePath, video_name, video_extention, _eventStartTime);
 
     MessageDealer::showMessage("Evento iniciado em " + getFormatedTime(time_now, "%H:%M:%S"));
@@ -171,10 +172,16 @@ void ProcessingTask::manageEvent() {
         bool event_max_time_reached = event_duration > EVENT_MAX_DURATION;
 
         if (no_motion || event_max_time_reached) {
+            if (_event) {
+                _event->setDuration(time_now - _event->getStartTime());
+            }
             finalizeEvent();
             MessageDealer::showMessage("Evento finalizado em " + getFormatedTime(time_now, "%H:%M:%S"));
         } else {
             _eventFramesCounter++;
+            if (_event) {
+                _event->incrementFramesQuantity();
+            }
         }
     }
 }
@@ -196,7 +203,7 @@ void ProcessingTask::finalizeEvent() {
         delete _event;
         _event = nullptr;
     } else {
-        
+
     }
 
     if (!_MotionEvent) {
@@ -207,6 +214,7 @@ void ProcessingTask::finalizeEvent() {
 }
 
 void ProcessingTask::followDetectedMotion() {
+
     /* definição do tamanho do passo horizontal */
     if (_servoHorizontalMovementEnable) {
         short int horizontal_step = 0;
@@ -378,6 +386,10 @@ void ProcessingTask::detectMotion() {
 
         if (_numberOfChanges >= _thereIsMotion) {
             _thereIsValidMotion = true;
+            if (_event) {
+                _event->incrementMotionQuantity(_numberOfChanges);
+            }
+
         } else {
             _thereIsValidMotion = false;
         }
@@ -418,14 +430,26 @@ void ProcessingTask::detectMotion() {
 void ProcessingTask::defineMotionDirection() {
     if (_previousMotionCenter.x < _motionCenter.x) {
         _horizontalDirection = right;
+        if (_event) {
+            _event->incrementHorizontalDirection(1);
+        }
     } else {
         _horizontalDirection = left;
+        if (_event) {
+            _event->incrementHorizontalDirection(-1);
+        }
     }
 
     if (_previousMotionCenter.y < _motionCenter.y) {
         _verticalDirection = up;
+        if (_event) {
+            _event->incrementVerticalDirection(1);
+        }
     } else {
         _verticalDirection = down;
+        if (_event) {
+            _event->incrementVerticalDirection(-1);
+        }
     }
 }
 
