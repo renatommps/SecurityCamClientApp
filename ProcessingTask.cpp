@@ -5,8 +5,6 @@
  * Created on 30 de Agosto de 2016, 15:00
  */
 
-#include <videoio.hpp>
-
 #include "ProcessingTask.h"
 
 ProcessingTask::ProcessingTask() {
@@ -23,11 +21,13 @@ ProcessingTask::ProcessingTask() {
 
     _servoHorizontalMovementEnable = false;
     _servoVerticalMovementEnable = false;
+    
+    _currentEvent = nullptr;
 }
 
-ProcessingTask::ProcessingTask(int capDeviceIndex, bool horizontal_tracking, bool vertical_tracking,
+ProcessingTask::ProcessingTask(int capDeviceIndex, bool horizontal_tracking, bool vertical_tracking, std::list<Event> * events_list,
         BufferManager *buffer, SynchronizationAndStatusDealer *synchAndStatusDealer, bool show_motion) :
-_capDeviceIndex(capDeviceIndex), _frameBuffer(buffer), _synchAndStatusDealer(synchAndStatusDealer) {
+_capDeviceIndex(capDeviceIndex), _eventsList(events_list), _frameBuffer(buffer), _synchAndStatusDealer(synchAndStatusDealer) {
     _kernelErode = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
     _thereIsMotion = 5;
     _maxDeviation = 20;

@@ -11,8 +11,10 @@
 #include <string>       //std::string
 #include <opencv2/opencv.hpp>
 #include "opencv2/highgui/highgui.hpp"
+#include <videoio.hpp>
 #include <sstream>
 #include <dirent.h>
+#include <list>             // std::list
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <ctime>        //std::time_t
@@ -23,6 +25,7 @@
 #include "MessageDealer.h"
 #include "BufferManager.h"
 #include "SynchronizationAndStatusDealer.h"
+#include "Event.h"
 
 const int DELAY = 30; // em milissegundos, delay entre frames
 const short int DEFAULT_WIDTH = 640; // width (largura) padão do frame
@@ -77,7 +80,7 @@ enum Quadrant {
 class ProcessingTask {
 public:
     ProcessingTask();
-    ProcessingTask(int capDeviceIndex, bool horizontal_tracking, bool vertical_tracking,
+    ProcessingTask(int capDeviceIndex, bool horizontal_tracking, bool vertical_tracking, std::list<Event> * events_list,
             BufferManager *buffer, SynchronizationAndStatusDealer *synchAndStatusDealer, bool show_motion);
     virtual ~ProcessingTask();
     void start();
@@ -85,6 +88,9 @@ private:
     bool _executionError;
     int _capDeviceIndex;
 
+    std::list<Event> * _eventsList;
+    Event * _currentEvent;
+    
     cv::VideoCapture _cap;
     cv::Mat _rawFrame;
     cv::Mat _prevFrame;
