@@ -130,19 +130,29 @@ void ProcessingTask::start() {
     MessageDealer::showMessage("Processing thread finished execution!");
 }
 
-void ProcessingTask::startEvent() {
-    std::time_t time_now = std::time(NULL);
+std::string ProcessingTask::getFormatedTime(std::time_t row_time) {
+    struct tm * timeinfo = localtime(&row_time);
+    char buffer [80];
+    strftime(buffer, 80, "%H:%M:%S", timeinfo);
+    std::string str_time(buffer);
 
+    return str_time;
+}
+
+void ProcessingTask::startEvent() {
+    std::time_t time_now = std::time(nullptr);
+
+    
     _synchAndStatusDealer->setMotionEventStatus(true);
     _eventStartTime = time_now;
     _lastMotionDetectedTime = time_now;
     _eventFramesCounter = 0;
 
-    MessageDealer::showMessage("Evento iniciado em " + std::to_string(time_now));
+    MessageDealer::showMessage("Evento iniciado em " + getFormatedTime(time_now));
 }
 
 void ProcessingTask::manageEvent() {
-    std::time_t time_now = std::time(NULL);
+    std::time_t time_now = std::time(nullptr);
 
     if (_thereIsValidMotion) {
         _lastMotionDetectedTime = time_now;
@@ -156,7 +166,7 @@ void ProcessingTask::manageEvent() {
 
         if (no_motion || event_max_time_reached) {
             _synchAndStatusDealer->setMotionEventStatus(false);
-            MessageDealer::showMessage("Evento finalizado em " + std::to_string(time_now));
+            MessageDealer::showMessage("Evento finalizado em " + getFormatedTime(time_now));
         } else {
             _eventFramesCounter++;
         }
@@ -306,7 +316,6 @@ void ProcessingTask::detectMotion() {
      * mask – optional operation mask.
      */
     cv::meanStdDev(_motion, mean, stddev); // calcula a variância e desvio padrão de uma imagem
-    MessageDealer::showMessage("mean: " + std::to_string(mean[0]) + ", " + "stddev: " + std::to_string(stddev[0]));
 
     /* se não tem uma quantidade muito grande de mudanças (menor que _maxDeviation),
      * então a movimentação (motion) é real (evita falsos positivos por causa de ruidos) */

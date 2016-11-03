@@ -37,6 +37,7 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 OBJECTFILES= \
 	${OBJECTDIR}/BufferManager.o \
 	${OBJECTDIR}/ClientTask.o \
+	${OBJECTDIR}/Event.o \
 	${OBJECTDIR}/MessageDealer.o \
 	${OBJECTDIR}/ProcessingTask.o \
 	${OBJECTDIR}/StorageTask.o \
@@ -77,6 +78,11 @@ ${OBJECTDIR}/ClientTask.o: ClientTask.cpp
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.cc) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/ClientTask.o ClientTask.cpp
+
+${OBJECTDIR}/Event.o: Event.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.cc) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Event.o Event.cpp
 
 ${OBJECTDIR}/MessageDealer.o: MessageDealer.cpp 
 	${MKDIR} -p ${OBJECTDIR}

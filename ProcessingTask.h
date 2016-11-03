@@ -18,6 +18,7 @@
 #include <ctime>        //std::time_t
 #include <fstream>      //std::ofstream
 #include <sstream>      // std::stringstream
+#include <time.h>       //time_t, time, ctime
 
 #include "MessageDealer.h"
 #include "BufferManager.h"
@@ -106,7 +107,7 @@ private:
     int _motion_max_y;
     bool _thereIsValidMotion;
     bool _showMotion;
-    
+
     Horizontal_direction _horizontalDirection;
     Vertical_direction _verticalDirection;
     Quadrant _quadrant;
@@ -138,7 +139,8 @@ private:
     void defineMotionQuadrant();
     void startEvent();
     void manageEvent();
-
+    std::string getFormatedTime(std::time_t row_time);
+    
     void servoHorizontalMovement(short int value);
     void servoVerticalMovement(short int value);
 };
