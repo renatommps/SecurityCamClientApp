@@ -31,8 +31,10 @@ public:
     std::time_t getStartTime();
     long getDuration();
     long getFramesQuantity();
+    long getHorizontalDirection();
+    long getVerticalDirection();
     double getMotionQuantity();
-
+    
     void setDuration(long duration); // define a duração em segundos do evento
     void setFramesQuantity(long quantity); // define a quantidade acumulada de frames (quadros de vídeo) do evento
     void setMotionQuantity(double quantity); // define a quantidade de movimentação acumulada do evento

@@ -21,13 +21,13 @@ ProcessingTask::ProcessingTask() {
 
     _servoHorizontalMovementEnable = false;
     _servoVerticalMovementEnable = false;
-    
-    _currentEvent = nullptr;
+
+    _event = nullptr;
 }
 
-ProcessingTask::ProcessingTask(int capDeviceIndex, bool horizontal_tracking, bool vertical_tracking, std::list<Event> * events_list,
+ProcessingTask::ProcessingTask(std::string events_storage_path, int capDeviceIndex, bool horizontal_tracking, bool vertical_tracking, std::list<Event> * events_list,
         BufferManager *buffer, SynchronizationAndStatusDealer *synchAndStatusDealer, bool show_motion) :
-_capDeviceIndex(capDeviceIndex), _eventsList(events_list), _frameBuffer(buffer), _synchAndStatusDealer(synchAndStatusDealer) {
+_eventsStoragePath(events_storage_path), _capDeviceIndex(capDeviceIndex), _eventsList(events_list), _frameBuffer(buffer), _synchAndStatusDealer(synchAndStatusDealer) {
     _kernelErode = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
     _thereIsMotion = 5;
     _maxDeviation = 20;
@@ -130,10 +130,10 @@ void ProcessingTask::start() {
     MessageDealer::showMessage("Processing thread finished execution!");
 }
 
-std::string ProcessingTask::getFormatedTime(std::time_t row_time) {
-    struct tm * timeinfo = localtime(&row_time);
+std::string ProcessingTask::getFormatedTime(std::time_t raw_time, std::string format) {
+    struct tm * timeinfo = localtime(&raw_time);
     char buffer [80];
-    strftime(buffer, 80, "%H:%M:%S", timeinfo);
+    strftime(buffer, 80, format.c_str(), timeinfo);
     std::string str_time(buffer);
 
     return str_time;
@@ -142,13 +142,19 @@ std::string ProcessingTask::getFormatedTime(std::time_t row_time) {
 void ProcessingTask::startEvent() {
     std::time_t time_now = std::time(nullptr);
 
-    
     _synchAndStatusDealer->setMotionEventStatus(true);
     _eventStartTime = time_now;
     _lastMotionDetectedTime = time_now;
     _eventFramesCounter = 0;
 
-    MessageDealer::showMessage("Evento iniciado em " + getFormatedTime(time_now));
+    // o id do evento é a data que ele foi criado (garantindo assim um id único para cada evento criado)
+    std::string event_id = getFormatedTime(time_now, "%Y-%m-%d-%H-%M-%S");
+    std::string video_name = getFormatedTime(time_now, "%Y-%m-%d-%H-%M-%S");
+    std::string video_extention = ".avi";
+
+    _event = new Event(event_id, _eventsStoragePath, video_name, video_extention, _eventStartTime);
+
+    MessageDealer::showMessage("Evento iniciado em " + getFormatedTime(time_now, "%H:%M:%S"));
 }
 
 void ProcessingTask::manageEvent() {
@@ -165,12 +171,39 @@ void ProcessingTask::manageEvent() {
         bool event_max_time_reached = event_duration > EVENT_MAX_DURATION;
 
         if (no_motion || event_max_time_reached) {
-            _synchAndStatusDealer->setMotionEventStatus(false);
-            MessageDealer::showMessage("Evento finalizado em " + getFormatedTime(time_now));
+            finalizeEvent();
+            MessageDealer::showMessage("Evento finalizado em " + getFormatedTime(time_now, "%H:%M:%S"));
         } else {
             _eventFramesCounter++;
         }
     }
+}
+
+void ProcessingTask::finalizeEvent() {
+
+    if (_event) {
+        MessageDealer::showMessage("Evento sera deletado deletado...");
+        MessageDealer::showMessage("Dados do evento:"
+                "\nID: " + _event->getId() +
+                "\nStart time: " + getFormatedTime(_event->getStartTime(), "%H:%M:%S") +
+                "\nDuratioin: " + std::to_string(_event->getDuration()) +
+                "\nFrames quantity: " + std::to_string(_event->getFramesQuantity()) +
+                "\nMotion Quantity: " + std::to_string(_event->getMotionQuantity()) +
+                "\nHorizontal Direction: " + std::to_string(_event->getHorizontalDirection()) +
+                "\nVertical Direction: " + std::to_string(_event->getVerticalDirection()) +
+                "\nVideo full name: " + _event->getVideoFullName()
+                );
+        delete _event;
+        _event = nullptr;
+    } else {
+        
+    }
+
+    if (!_MotionEvent) {
+        MessageDealer::showMessage("Evento deletado!");
+    }
+
+    _synchAndStatusDealer->setMotionEventStatus(false);
 }
 
 void ProcessingTask::followDetectedMotion() {

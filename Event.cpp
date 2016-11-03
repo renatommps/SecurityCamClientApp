@@ -14,11 +14,8 @@
 #include "Event.h"
 
 Event::Event(std::string id, std::string video_path, std::string video_name, std::string video_extention, std::time_t start_time) :
-_id(id), _videoPath(video_path), _videoName(video_name), _videoExtention(video_extention), _startTime(start_time) {
-    long _framesQuantity = 0;
-    long _horizontalDirection = 0;
-    long _verticalDirection = 0;
-    double _motionQuantity = 0;
+_id(id), _videoPath(video_path), _videoName(video_name), _videoExtention(video_extention), _startTime(start_time),
+_framesQuantity(0), _horizontalDirection(0), _verticalDirection(0), _motionQuantity(0.0) {
 }
 
 Event::Event(const Event& orig) {
@@ -53,6 +50,14 @@ long Event::getDuration() {
 
 long Event::getFramesQuantity() {
     return _framesQuantity;
+}
+
+long Event::getHorizontalDirection() {
+    return _horizontalDirection;
+}
+
+long Event::getVerticalDirection() {
+    return _verticalDirection;
 }
 
 double Event::getMotionQuantity() {
