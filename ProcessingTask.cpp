@@ -152,7 +152,6 @@ void ProcessingTask::startEvent() {
     std::string video_name = getFormatedTime(time_now, "%Y-%m-%d-%H-%M-%S");
     std::string video_extention = ".avi";
 
-    MessageDealer::showMessage("Vai tentar iniciar evento...");
     _event = new Event(event_id, _eventsStoragePath, video_name, video_extention, _eventStartTime);
 
     MessageDealer::showMessage("Evento iniciado em " + getFormatedTime(time_now, "%H:%M:%S"));
@@ -168,12 +167,16 @@ void ProcessingTask::manageEvent() {
         std::time_t event_duration = time_now - _eventStartTime;
         std::time_t time_without_motion = time_now - _lastMotionDetectedTime;
 
-        bool no_motion = time_without_motion > EVENT_MAX_INACTIVITY_TIME;
+        bool no_motion_period = time_without_motion > EVENT_MAX_INACTIVITY_TIME;
         bool event_max_time_reached = event_duration > EVENT_MAX_DURATION;
 
-        if (no_motion || event_max_time_reached) {
+        if (no_motion_period || event_max_time_reached) {
             if (_event) {
-                _event->setDuration(time_now - _event->getStartTime());
+                double duration = difftime(time_now, _event->getStartTime());
+                MessageDealer::showMessage("Duração do evento: " + std::to_string(duration));
+                _event->setDuration(duration);
+            } else {
+                MessageDealer::showMessage("Não era pra estar aqui :(");
             }
             finalizeEvent();
             MessageDealer::showMessage("Evento finalizado em " + getFormatedTime(time_now, "%H:%M:%S"));
@@ -202,8 +205,6 @@ void ProcessingTask::finalizeEvent() {
                 );
         delete _event;
         _event = nullptr;
-    } else {
-
     }
 
     if (!_MotionEvent) {
@@ -431,25 +432,30 @@ void ProcessingTask::defineMotionDirection() {
     if (_previousMotionCenter.x < _motionCenter.x) {
         _horizontalDirection = right;
         if (_event) {
-            _event->incrementHorizontalDirection(1);
+            MessageDealer::showMessage("vai incrementar a direção horizontal do evento...");
+            //_event->incrementHorizontalDirection(1);
+            int i = 1;
+            _event->incrementHorizontalDirection(i);
+        } else {
+            MessageDealer::showMessage("nao tem evento para incrementar a direção horizontal do evento...");
         }
     } else {
         _horizontalDirection = left;
-        if (_event) {
-            _event->incrementHorizontalDirection(-1);
-        }
+        //                if (_event) {
+        //                    _event->incrementHorizontalDirection(-1);
+        //                }
     }
 
     if (_previousMotionCenter.y < _motionCenter.y) {
         _verticalDirection = up;
-        if (_event) {
-            _event->incrementVerticalDirection(1);
-        }
+        //                if (_event) {
+        //                    _event->incrementVerticalDirection(1);
+        //                }
     } else {
         _verticalDirection = down;
-        if (_event) {
-            _event->incrementVerticalDirection(-1);
-        }
+        //        if (_event) {
+        //            _event->incrementVerticalDirection(-1);
+        //        }
     }
 }
 

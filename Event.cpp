@@ -44,7 +44,7 @@ std::time_t Event::getStartTime() {
     return _startTime;
 }
 
-long Event::getDuration() {
+double Event::getDuration() {
     return _duration;
 }
 
@@ -64,7 +64,7 @@ double Event::getMotionQuantity() {
     return _motionQuantity;
 }
 
-void Event::setDuration(long duration) {
+void Event::setDuration(double duration) {
     _duration = duration;
 }
 
@@ -84,7 +84,8 @@ void Event::incrementMotionQuantity(double quantity) {
     _motionQuantity += quantity;
 }
 
-void Event::incrementHorizontalDirection(short int quantity) {
+void Event::incrementHorizontalDirection(int quantity) {
+    MessageDealer::showMessage("ola to dentro do metodo...");
     _horizontalDirection += quantity;
 }
 
