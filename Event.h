@@ -59,7 +59,6 @@ private:
     long _verticalDirection; // valores negativos representam direção média de movimentos para baixo, e positivos para cima;
     double _motionQuantity; // quantia acumulada de movimentação detectada do evento
     bool _eventSavedStatus; // indica se o evento já foi enviado e salvo no servidor
-
 };
 
 #endif /* EVENT_H */

@@ -123,6 +123,14 @@ void Event::incrementVerticalDirection(short int quantity) {
     _verticalDirection += quantity;
 }
 
+bool Event::saveInfoOnDisk(){
+    
+}
+
+bool Event::saveInfoOnDisk(){
+    
+}
+
 std::string Event::toString() {
     std::string eventString = (
             "\nID: " + getId() +
@@ -132,7 +140,7 @@ std::string Event::toString() {
             "\nMotion Quantity: " + std::to_string(getMotionQuantity()) +
             "\nHorizontal Direction: " + std::to_string(getHorizontalDirection()) +
             "\nVertical Direction: " + std::to_string(getVerticalDirection()) +
-            "\nVideo full name: " + getVideoFullName()
-            );
+            "\nVideo full name: " + getVideoFullName() +
+            "\n");
     return eventString;
 }
