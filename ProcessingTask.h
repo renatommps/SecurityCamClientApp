@@ -80,7 +80,7 @@ enum Quadrant {
 class ProcessingTask {
 public:
     ProcessingTask();
-    ProcessingTask(std::string events_storage_path, int capDeviceIndex, bool horizontal_tracking, bool vertical_tracking, std::list<Event> * events_list,
+    ProcessingTask(std::string events_storage_path, int capDeviceIndex, bool horizontal_tracking, bool vertical_tracking, std::list<Event*> * events_list,
             BufferManager *buffer, SynchronizationAndStatusDealer *synchAndStatusDealer, bool show_motion);
     virtual ~ProcessingTask();
     void start();
@@ -89,10 +89,10 @@ private:
     int _capDeviceIndex;
 
     std::string _eventsStoragePath;
-    
-    std::list<Event> * _eventsList;
+
+    std::list<Event*> * _eventsList;
     Event * _event;
-    
+
     cv::VideoCapture _cap;
     cv::Mat _rawFrame;
     cv::Mat _prevFrame;
@@ -149,7 +149,7 @@ private:
     void manageEvent();
     void finalizeEvent();
     std::string getFormatedTime(std::time_t raw_time, std::string format);
-    
+
     void servoHorizontalMovement(short int value);
     void servoVerticalMovement(short int value);
 };

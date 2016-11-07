@@ -25,7 +25,7 @@ ProcessingTask::ProcessingTask() {
     _event = nullptr;
 }
 
-ProcessingTask::ProcessingTask(std::string events_storage_path, int capDeviceIndex, bool horizontal_tracking, bool vertical_tracking, std::list<Event> * events_list,
+ProcessingTask::ProcessingTask(std::string events_storage_path, int capDeviceIndex, bool horizontal_tracking, bool vertical_tracking, std::list<Event*> * events_list,
         BufferManager *buffer, SynchronizationAndStatusDealer *synchAndStatusDealer, bool show_motion) :
 _eventsStoragePath(events_storage_path), _capDeviceIndex(capDeviceIndex), _eventsList(events_list), _frameBuffer(buffer), _synchAndStatusDealer(synchAndStatusDealer) {
     _kernelErode = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
@@ -42,6 +42,8 @@ _eventsStoragePath(events_storage_path), _capDeviceIndex(capDeviceIndex), _event
 
     _servoHorizontalMovementEnable = horizontal_tracking;
     _servoVerticalMovementEnable = vertical_tracking;
+
+    _event = nullptr;
 }
 
 ProcessingTask::~ProcessingTask() {
@@ -163,6 +165,11 @@ void ProcessingTask::manageEvent() {
     if (_thereIsValidMotion) {
         _lastMotionDetectedTime = time_now;
         followDetectedMotion();
+
+        _eventFramesCounter++;
+        if (_event) {
+            _event->incrementFramesQuantity();
+        }
     } else {
         std::time_t event_duration = time_now - _eventStartTime;
         std::time_t time_without_motion = time_now - _lastMotionDetectedTime;
@@ -173,10 +180,7 @@ void ProcessingTask::manageEvent() {
         if (no_motion_period || event_max_time_reached) {
             if (_event) {
                 double duration = difftime(time_now, _event->getStartTime());
-                MessageDealer::showMessage("Duração do evento: " + std::to_string(duration));
                 _event->setDuration(duration);
-            } else {
-                MessageDealer::showMessage("Não era pra estar aqui :(");
             }
             finalizeEvent();
             MessageDealer::showMessage("Evento finalizado em " + getFormatedTime(time_now, "%H:%M:%S"));
@@ -190,25 +194,20 @@ void ProcessingTask::manageEvent() {
 }
 
 void ProcessingTask::finalizeEvent() {
-
     if (_event) {
-        MessageDealer::showMessage("Evento sera deletado deletado...");
-        MessageDealer::showMessage("Dados do evento:"
-                "\nID: " + _event->getId() +
-                "\nStart time: " + getFormatedTime(_event->getStartTime(), "%H:%M:%S") +
-                "\nDuratioin: " + std::to_string(_event->getDuration()) +
-                "\nFrames quantity: " + std::to_string(_event->getFramesQuantity()) +
-                "\nMotion Quantity: " + std::to_string(_event->getMotionQuantity()) +
-                "\nHorizontal Direction: " + std::to_string(_event->getHorizontalDirection()) +
-                "\nVertical Direction: " + std::to_string(_event->getVerticalDirection()) +
-                "\nVideo full name: " + _event->getVideoFullName()
-                );
-        delete _event;
+        //MessageDealer::showMessage("Dados do evento:" + _event->toString());
+
+        _eventsList->push_front(_event);
+        //delete _event;
         _event = nullptr;
     }
 
-    if (!_MotionEvent) {
-        MessageDealer::showMessage("Evento deletado!");
+    std::list<Event*>::iterator it = _eventsList->begin();
+    while (it != _eventsList->end()) {
+        Event *my_event = dynamic_cast<Event*> (*it);
+        _eventsList->erase(it++); // alternatively, i = items.erase(i);
+        MessageDealer::showMessage("Dados do evento]:" + my_event->toString());
+        delete my_event;
     }
 
     _synchAndStatusDealer->setMotionEventStatus(false);
@@ -432,30 +431,25 @@ void ProcessingTask::defineMotionDirection() {
     if (_previousMotionCenter.x < _motionCenter.x) {
         _horizontalDirection = right;
         if (_event) {
-            MessageDealer::showMessage("vai incrementar a direção horizontal do evento...");
-            //_event->incrementHorizontalDirection(1);
-            int i = 1;
-            _event->incrementHorizontalDirection(i);
-        } else {
-            MessageDealer::showMessage("nao tem evento para incrementar a direção horizontal do evento...");
+            _event->incrementHorizontalDirection(1);
         }
     } else {
         _horizontalDirection = left;
-        //                if (_event) {
-        //                    _event->incrementHorizontalDirection(-1);
-        //                }
+        if (_event) {
+            _event->incrementHorizontalDirection(-1);
+        }
     }
 
     if (_previousMotionCenter.y < _motionCenter.y) {
         _verticalDirection = up;
-        //                if (_event) {
-        //                    _event->incrementVerticalDirection(1);
-        //                }
+        if (_event) {
+            _event->incrementVerticalDirection(1);
+        }
     } else {
         _verticalDirection = down;
-        //        if (_event) {
-        //            _event->incrementVerticalDirection(-1);
-        //        }
+        if (_event) {
+            _event->incrementVerticalDirection(-1);
+        }
     }
 }
 

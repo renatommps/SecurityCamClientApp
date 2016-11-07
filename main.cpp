@@ -36,7 +36,7 @@ cv::Mat _processedFrame;
 cv::Mat _clientFrame;
 cv::Mat _LastProcessedFrame;
 std::list<cv::Mat> frame_buffer;
-std::list<Event> _eventsList;
+std::list<Event*> _eventsList;
 
 int _frameWidth;
 int _frameHeight;

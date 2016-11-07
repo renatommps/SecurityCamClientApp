@@ -18,6 +18,7 @@
 #include <time.h>       //time_t, time, ctime
 #include <string>       //std::string
 #include "MessageDealer.h"
+
 class Event {
 public:
     Event(std::string id, std::string video_path, std::string video_name, std::string video_extention, std::time_t start_time);
@@ -34,14 +35,18 @@ public:
     long getHorizontalDirection();
     long getVerticalDirection();
     double getMotionQuantity();
-    
+    bool getEventSavedStatus();
+
     void setDuration(double duration); // define a duração em segundos do evento
     void setFramesQuantity(long quantity); // define a quantidade acumulada de frames (quadros de vídeo) do evento
     void setMotionQuantity(double quantity); // define a quantidade de movimentação acumulada do evento
+    void setEventSavedStatus(bool status); // seta se o evento foi enviado com sucesso para o servidor
     void incrementFramesQuantity(); // incrementa de um a quantidade acumulada de frames
     void incrementMotionQuantity(double quantity); // incrementa a quantidade acumulada de movimentação do evento com a quantidade passada
     void incrementHorizontalDirection(int quantity); // incrementar de 1 significa incremento para a direita, e -1, para a esquerda;
     void incrementVerticalDirection(short int quantity); // incrementar de 1 significa incremento para cima, e -1, para baixo;
+    std::string getFormatedTime(std::time_t raw_time, std::string format);
+    std::string toString();
 private:
     std::string _id; // identificação do evento
     std::string _videoPath; // caminho (do diretório/pasta) do vídeo que sera gravado do evento
@@ -53,6 +58,7 @@ private:
     int _horizontalDirection; // valores negativos representam direção média de movimentos para a esquerda, e positivos para a direita;
     long _verticalDirection; // valores negativos representam direção média de movimentos para baixo, e positivos para cima;
     double _motionQuantity; // quantia acumulada de movimentação detectada do evento
+    bool _eventSavedStatus; // indica se o evento já foi enviado e salvo no servidor
 
 };
 
