@@ -46,6 +46,7 @@ public:
     void incrementHorizontalDirection(int quantity); // incrementar de 1 significa incremento para a direita, e -1, para a esquerda;
     void incrementVerticalDirection(short int quantity); // incrementar de 1 significa incremento para cima, e -1, para baixo;
     std::string getFormatedTime(std::time_t raw_time, std::string format);
+    bool saveInfoOnDisk(); // salva os dados do evento em disco para ser recuperado posteriormente
     std::string toString();
 private:
     std::string _id; // identificação do evento

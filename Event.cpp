@@ -127,10 +127,6 @@ bool Event::saveInfoOnDisk(){
     
 }
 
-bool Event::saveInfoOnDisk(){
-    
-}
-
 std::string Event::toString() {
     std::string eventString = (
             "\nID: " + getId() +
