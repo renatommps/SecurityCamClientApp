@@ -105,6 +105,7 @@ private:
     cv::Mat _motion;
     cv::Mat _kernelErode; // kernel de erosão
 
+    double _fps; // frames por segundo do vídeo (valor aproximado a ser calculado quando o programa iniciar)
     int _numberOfChanges; // número de mudanças na matrix _result
     int _thereIsMotion; // se existe mais que '_thereIsMotion' pixels que mudaram, então é considerado que existe movimento
     int _maxDeviation; // desvio máximo da imagem, quanto maior o valor, mais movimento é aceito (motion)
@@ -140,6 +141,7 @@ private:
     short int _servoVerticalPosition;
 
     bool openAndConfigureVideoDevice();
+    void estimateFPS();
     void detectMotion();
     void followDetectedMotion();
     void resetBackgroundModelFrames();

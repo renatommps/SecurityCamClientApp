@@ -17,8 +17,22 @@ BufferManager::~BufferManager() {
 }
 
 void BufferManager::pushBackFrame(cv::Mat frame) {
+    Frame f(frame);
     _bufferMutex.lock();
-    _frameBuffer.push_back(frame);
+    if (_frameBuffer.size() >= BUFFER_MAX_SIZE) {
+        _frameBuffer.pop_front();
+    }
+    _frameBuffer.push_back(f);
+    _bufferMutex.unlock();
+}
+
+void BufferManager::pushBackFrame(cv::Mat frame, Type type) {
+    Frame f(frame, type);
+    _bufferMutex.lock();
+    if (_frameBuffer.size() >= BUFFER_MAX_SIZE) {
+        _frameBuffer.pop_front();
+    }
+    _frameBuffer.push_back(f);
     _bufferMutex.unlock();
 }
 
@@ -26,8 +40,10 @@ cv::Mat BufferManager::popFrontFrame() {
     cv::Mat frame;
 
     _bufferMutex.lock();
-    frame = _frameBuffer.front();
-    _frameBuffer.pop_front();
+    if (!_frameBuffer.empty()) {
+        frame = _frameBuffer.front().getFrame();
+        _frameBuffer.pop_front();
+    }
     _bufferMutex.unlock();
 
     return frame;

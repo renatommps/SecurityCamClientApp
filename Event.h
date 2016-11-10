@@ -17,11 +17,15 @@
 #include <ctime>        //std::time_t
 #include <time.h>       //time_t, time, ctime
 #include <string>       //std::string
+#include <opencv2/opencv.hpp>
+#include "opencv/highgui.h"
 #include "MessageDealer.h"
+
+const int VIDEO_WRITER_CODEC = CV_FOURCC('M', 'J', 'P', 'G'); // {'F','M','P','4'}; // codec utilizado pelo VideoWriter
 
 class Event {
 public:
-    Event(std::string id, std::string video_path, std::string video_name, std::string video_extention, std::time_t start_time);
+    Event(std::string id, std::string video_path, std::string video_name, std::string video_extention, std::time_t start_time, double fps, cv::Size size);
     Event(const Event& orig);
     virtual ~Event();
 
@@ -60,6 +64,9 @@ private:
     long _verticalDirection; // valores negativos representam direção média de movimentos para baixo, e positivos para cima;
     double _motionQuantity; // quantia acumulada de movimentação detectada do evento
     bool _eventSavedStatus; // indica se o evento já foi enviado e salvo no servidor
+    cv::VideoWriter _videoWriter;
+    cv::Size _videoSize;
+    double _fps;
 };
 
 #endif /* EVENT_H */

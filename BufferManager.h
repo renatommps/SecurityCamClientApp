@@ -11,6 +11,9 @@
 #include <list>                 // std::list
 #include <mutex>                // std::mutex, std::unique_lock
 #include <opencv2/opencv.hpp>   // cv::Mat
+#include "Frame.h"
+
+const int BUFFER_MAX_SIZE = 10; // tamanho máximo do buffer de frames
 
 class BufferManager {
 public:
@@ -18,11 +21,12 @@ public:
     BufferManager(const BufferManager& orig);
     virtual ~BufferManager();
     void pushBackFrame(cv::Mat frame);
+    void pushBackFrame(cv::Mat frame, Type type);
     cv::Mat popFrontFrame();
     bool empty();
     int size();
 private:
-    std::list<cv::Mat> _frameBuffer;
+    std::list<Frame> _frameBuffer;
     std::mutex _bufferMutex;
 };
 

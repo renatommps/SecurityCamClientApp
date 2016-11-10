@@ -13,9 +13,17 @@
 
 #include "Event.h"
 
-Event::Event(std::string id, std::string video_path, std::string video_name, std::string video_extention, std::time_t start_time) :
+Event::Event(std::string id, std::string video_path, std::string video_name, std::string video_extention, std::time_t start_time, double fps, cv::Size size) :
 _id(id), _videoPath(video_path), _videoName(video_name), _videoExtention(video_extention), _startTime(start_time),
-_framesQuantity(0), _horizontalDirection(0), _verticalDirection(0), _motionQuantity(0.0), _eventSavedStatus(false) {
+_framesQuantity(0), _horizontalDirection(0), _verticalDirection(0), _motionQuantity(0.0), _eventSavedStatus(false),
+_fps(fps), _videoSize(size) {
+    _videoWriter.open(
+            (video_path + "/" + video_name + video_extention), // Name of the output video file.
+            VIDEO_WRITER_CODEC, // fourcc – 4 - character code of codec used to compress the frames. For example, CV_FOURCC('P', 'I', 'M', '1') is a MPEG - 1 codec, CV_FOURCC('M', 'J', 'P', 'G') is a motion - jpeg codec etc.
+            fps, // fps – Framerate of the created video stream.
+            size, // frameSize – Size of the video frames.
+            true); // isColor – If it is not zero, the encoder will expect and encode color frames, otherwise it will work with grayscale frames(the flag is currently supported on Windows only).
+
 }
 
 Event::Event(const Event& orig) {
@@ -123,8 +131,8 @@ void Event::incrementVerticalDirection(short int quantity) {
     _verticalDirection += quantity;
 }
 
-bool Event::saveInfoOnDisk(){
-    
+bool Event::saveInfoOnDisk() {
+
 }
 
 std::string Event::toString() {

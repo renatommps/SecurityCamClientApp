@@ -19,6 +19,7 @@
 #include "StorageTask.h"
 #include "ClientTask.h"
 #include "Event.h"
+#include "Frame.h"
 
 std::string getExecutionPath();
 bool createDirectoryTree(std::string path);
@@ -35,7 +36,7 @@ cv::Mat _frame;
 cv::Mat _processedFrame;
 cv::Mat _clientFrame;
 cv::Mat _LastProcessedFrame;
-std::list<cv::Mat> frame_buffer;
+std::list<Frame> frame_buffer;
 std::list<Event*> _eventsList;
 
 int _frameWidth;
