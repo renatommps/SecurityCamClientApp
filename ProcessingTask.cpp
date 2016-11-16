@@ -125,14 +125,22 @@ void ProcessingTask::start() {
             cv::imshow("Motion", _motion);
             cv::imshow("Result", _result);
 
-            if (cv::waitKey(1000/_fps) >= 0) break;
+            if (cv::waitKey(1000 / _fps) >= 0) break;
         }
         _cap.release();
         _synchAndStatusDealer->setProcessingTaskExecutionStatus(false);
+
+        if (_event) {
+            finalizeEvent();
+        }
         MessageDealer::showMessage("Processing thread exit while loop!");
     } catch (std::exception & e) {
         _cap.release();
         _synchAndStatusDealer->setProcessingTaskErrorStatus(true);
+
+        if (_event) {
+            finalizeEvent();
+        }
         MessageDealer::showErrorMessage(std::string("Error in processing task : ") + std::string(e.what()));
     }
 
@@ -541,7 +549,7 @@ void ProcessingTask::estimateFPS() {
             cv::imshow("Motion", _motion);
             cv::imshow("Result", _result);
 
-           if (cv::waitKey(30) >= 0) break;
+            if (cv::waitKey(30) >= 0) break;
         }
 
         time(&end); // define o tempo final
