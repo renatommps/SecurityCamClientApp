@@ -6,7 +6,6 @@
  */
 
 #include <core/mat.hpp>
-
 #include "ProcessingTask.h"
 
 ProcessingTask::ProcessingTask() {
