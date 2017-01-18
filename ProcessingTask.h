@@ -107,7 +107,7 @@ private:
 
     double _fps; // frames por segundo do vídeo (valor aproximado a ser calculado quando o programa iniciar)
     int _numberOfChanges; // número de mudanças na matrix _result
-    int _thereIsMotion; // se existe mais que '_thereIsMotion' pixels que mudaram, então é considerado que existe movimento
+    int _minMotionValue; // se existe mais que '_thereIsMotion' pixels que mudaram, então é considerado que existe movimento
     int _maxDeviation; // desvio máximo da imagem, quanto maior o valor, mais movimento é aceito (motion)
     int _numberOfConsecutiveMotionSequence;
     int _motion_min_x;

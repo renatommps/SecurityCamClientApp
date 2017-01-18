@@ -10,7 +10,7 @@
 
 ProcessingTask::ProcessingTask() {
     _kernelErode = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
-    _thereIsMotion = 5;
+    _minMotionValue = 5;
     _maxDeviation = 20;
     _numberOfChanges = 0;
     _numberOfConsecutiveMotionSequence = 0;
@@ -30,7 +30,7 @@ ProcessingTask::ProcessingTask(std::string events_storage_path, int capDeviceInd
         BufferManager *buffer, SynchronizationAndStatusDealer *synchAndStatusDealer, bool show_motion) :
 _eventsStoragePath(events_storage_path), _capDeviceIndex(capDeviceIndex), _eventsList(events_list), _frameBuffer(buffer), _synchAndStatusDealer(synchAndStatusDealer) {
     _kernelErode = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
-    _thereIsMotion = 5;
+    _minMotionValue = 5;
     _maxDeviation = 20;
     _numberOfChanges = 0;
     _numberOfConsecutiveMotionSequence = 0;
@@ -411,7 +411,7 @@ void ProcessingTask::detectMotion() {
             }
         }
 
-        if (_numberOfChanges >= _thereIsMotion) {
+        if (_numberOfChanges >= _minMotionValue) {
             _thereIsValidMotion = true;
             if (_event) {
                 _event->incrementMotionQuantity(_numberOfChanges);
