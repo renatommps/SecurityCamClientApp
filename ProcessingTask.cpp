@@ -26,9 +26,10 @@ ProcessingTask::ProcessingTask() {
     _event = nullptr;
 }
 
-ProcessingTask::ProcessingTask(std::string events_storage_path, int capDeviceIndex, bool horizontal_tracking, bool vertical_tracking, std::list<Event*> * events_list,
-        BufferManager *buffer, SynchronizationAndStatusDealer *synchAndStatusDealer, bool show_motion) :
-_eventsStoragePath(events_storage_path), _capDeviceIndex(capDeviceIndex), _eventsList(events_list), _frameBuffer(buffer), _synchAndStatusDealer(synchAndStatusDealer) {
+ProcessingTask::ProcessingTask(std::string events_storage_path, int capDeviceIndex, bool horizontal_tracking, bool vertical_tracking) :
+_eventsStoragePath(events_storage_path), _capDeviceIndex(capDeviceIndex), _servoHorizontalMovementEnable(horizontal_tracking),
+_servoVerticalMovementEnable(vertical_tracking) {
+
     _kernelErode = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
     _minMotionValue = 5;
     _maxDeviation = 20;
@@ -40,28 +41,6 @@ _eventsStoragePath(events_storage_path), _capDeviceIndex(capDeviceIndex), _event
     _color = myColor;
 
     _synchAndStatusDealer->setMotionEventStatus(false);
-
-    _servoHorizontalMovementEnable = horizontal_tracking;
-    _servoVerticalMovementEnable = vertical_tracking;
-
-    _event = nullptr;
-}
-
-ProcessingTask::ProcessingTask(std::string events_storage_path, int capDeviceIndex, bool horizontal_tracking, bool vertical_tracking) {
-    _kernelErode = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
-    _minMotionValue = 5;
-    _maxDeviation = 20;
-    _numberOfChanges = 0;
-    _numberOfConsecutiveMotionSequence = 0;
-    _showMotion = _showMotion;
-
-    cv::Scalar myColor(0, 255, 255);
-    _color = myColor;
-
-    _synchAndStatusDealer->setMotionEventStatus(false);
-
-    _servoHorizontalMovementEnable = horizontal_tracking;
-    _servoVerticalMovementEnable = vertical_tracking;
 
     _event = nullptr;
 }
@@ -72,12 +51,15 @@ ProcessingTask::~ProcessingTask() {
 void ProcessingTask::start() {
     MessageDealer::showMessage("Processing task started.");
 
-    /* abre o dispositivo de vídeo*/
-    _synchAndStatusDealer->setProcessingTaskErrorStatus(openAndConfigureVideoDevice());
+    /* abre o dispositivo de vídeo */
+    openAndConfigureVideoDevice();
 
+    /* lê 3 frame (anterior, atual, e próximo) para criar o modelo de fundo
+     * (background model) para diferenciar o que é fundo, e o que é movimento
+     */
     resetBackgroundModelFrames();
 
-    /* estima o fps (taxa de frames por segundo */
+    /* estima o fps (taxa de quadros por segundo) */
     estimateFPS();
 
     try {
@@ -94,13 +76,10 @@ void ProcessingTask::start() {
             /* lê o próximo frame do dispositivo de vídeo */
             _cap.read(_originalFrame);
 
-            //            /* adiciona o frame lido no buffer de frames */
-            //            _frameBuffer->pushBackFrame(_rawFrame);
-
             /* atualiza o próximo frame usado para processamento (redimensiona e transforma em gray scale */
             cv::resize(_originalFrame, _nextFrame, DEFAULT_PROCESSED_FRAME_SIZE, 0, 0, CV_INTER_AREA);
 
-            /* frame resultante, que sera usado para mostrar o processamento */
+            /* frame resultante, que sera usado para mostrar o processamento (temporário, para testes, remover no futuro) */
             _result = _nextFrame;
 
             cvtColor(_nextFrame, _nextFrame, CV_BGR2GRAY);
