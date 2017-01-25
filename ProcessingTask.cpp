@@ -47,6 +47,25 @@ _eventsStoragePath(events_storage_path), _capDeviceIndex(capDeviceIndex), _event
     _event = nullptr;
 }
 
+ProcessingTask::ProcessingTask(std::string events_storage_path, int capDeviceIndex, bool horizontal_tracking, bool vertical_tracking) {
+    _kernelErode = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
+    _minMotionValue = 5;
+    _maxDeviation = 20;
+    _numberOfChanges = 0;
+    _numberOfConsecutiveMotionSequence = 0;
+    _showMotion = _showMotion;
+
+    cv::Scalar myColor(0, 255, 255);
+    _color = myColor;
+
+    _synchAndStatusDealer->setMotionEventStatus(false);
+
+    _servoHorizontalMovementEnable = horizontal_tracking;
+    _servoVerticalMovementEnable = vertical_tracking;
+
+    _event = nullptr;
+}
+
 ProcessingTask::~ProcessingTask() {
 }
 
@@ -73,13 +92,13 @@ void ProcessingTask::start() {
             _currentFrame = _nextFrame;
 
             /* lê o próximo frame do dispositivo de vídeo */
-            _cap.read(_rawFrame);
+            _cap.read(_originalFrame);
 
             //            /* adiciona o frame lido no buffer de frames */
             //            _frameBuffer->pushBackFrame(_rawFrame);
 
             /* atualiza o próximo frame usado para processamento (redimensiona e transforma em gray scale */
-            cv::resize(_rawFrame, _nextFrame, DEFAULT_PROCESSED_FRAME_SIZE, 0, 0, CV_INTER_AREA);
+            cv::resize(_originalFrame, _nextFrame, DEFAULT_PROCESSED_FRAME_SIZE, 0, 0, CV_INTER_AREA);
 
             /* frame resultante, que sera usado para mostrar o processamento */
             _result = _nextFrame;
@@ -168,9 +187,9 @@ void ProcessingTask::startEvent() {
     std::string video_name = getFormatedTime(time_now, "%Y-%m-%d-%H-%M-%S");
     std::string video_extention = ".avi";
 
-    _frameBuffer->pushBackFrame(_rawFrame, EVENT_START);
+    _frameBuffer->pushBackFrame(_originalFrame, EVENT_START);
 
-    _event = new Event(event_id, _eventsStoragePath, video_name, video_extention, _eventStartTime, _fps, cv::Size(_rawFrame.cols, _rawFrame.rows));
+    _event = new Event(event_id, _eventsStoragePath, video_name, video_extention, _eventStartTime, _fps, cv::Size(_originalFrame.cols, _originalFrame.rows));
     MessageDealer::showMessage("Evento iniciado em " + getFormatedTime(time_now, "%H:%M:%S"));
 
     _lastMotionDetectedTime = time_now;
@@ -190,7 +209,7 @@ void ProcessingTask::manageEvent() {
         followDetectedMotion();
 
         _eventFramesCounter++;
-        _frameBuffer->pushBackFrame(_rawFrame, INSIDE_EVENT);
+        _frameBuffer->pushBackFrame(_originalFrame, INSIDE_EVENT);
 
         if (_event) {
             _event->incrementFramesQuantity();
@@ -207,12 +226,12 @@ void ProcessingTask::manageEvent() {
                 double duration = difftime(time_now, _event->getStartTime());
                 _event->setDuration(duration);
             }
-            _frameBuffer->pushBackFrame(_rawFrame, EVENT_END);
+            _frameBuffer->pushBackFrame(_originalFrame, EVENT_END);
             finalizeEvent();
             MessageDealer::showMessage("Evento finalizado em " + getFormatedTime(time_now, "%H:%M:%S"));
         } else {
             _eventFramesCounter++;
-            _frameBuffer->pushBackFrame(_rawFrame, INSIDE_EVENT);
+            _frameBuffer->pushBackFrame(_originalFrame, INSIDE_EVENT);
             if (_event) {
                 _event->incrementFramesQuantity();
             }
@@ -337,25 +356,25 @@ void ProcessingTask::resetBackgroundModelFrames() {
     _motionCenter = DEFAULT_PROCESSED_FRAME_CENTER;
 
     /* lê o primeiro frame (frame anterior) */
-    _cap.read(_rawFrame);
+    _cap.read(_originalFrame);
     /* adiciona o frame lido no buffer de frames */
-    _frameBuffer->pushBackFrame(_rawFrame);
+    _frameBuffer->pushBackFrame(_originalFrame);
     /* redimensiona o frame lido (por questões de desempenho,
      * somente o frame redimensionado sera usado para processamento) */
-    cv::resize(_rawFrame, _prevFrame, DEFAULT_PROCESSED_FRAME_SIZE, 0, 0, CV_INTER_AREA);
+    cv::resize(_originalFrame, _prevFrame, DEFAULT_PROCESSED_FRAME_SIZE, 0, 0, CV_INTER_AREA);
     /* converte para gray scale*/
     cvtColor(_prevFrame, _prevFrame, CV_BGR2GRAY);
 
     /* lê o segundo frame (frame corrente) */
-    _cap.read(_rawFrame);
-    _frameBuffer->pushBackFrame(_rawFrame);
-    cv::resize(_rawFrame, _currentFrame, DEFAULT_PROCESSED_FRAME_SIZE, 0, 0, CV_INTER_AREA);
+    _cap.read(_originalFrame);
+    _frameBuffer->pushBackFrame(_originalFrame);
+    cv::resize(_originalFrame, _currentFrame, DEFAULT_PROCESSED_FRAME_SIZE, 0, 0, CV_INTER_AREA);
     cvtColor(_currentFrame, _currentFrame, CV_BGR2GRAY);
 
     /* lê o terceiro frame (próximo frame) */
-    _cap.read(_rawFrame);
-    _frameBuffer->pushBackFrame(_rawFrame);
-    cv::resize(_rawFrame, _nextFrame, DEFAULT_PROCESSED_FRAME_SIZE, 0, 0, CV_INTER_AREA);
+    _cap.read(_originalFrame);
+    _frameBuffer->pushBackFrame(_originalFrame);
+    cv::resize(_originalFrame, _nextFrame, DEFAULT_PROCESSED_FRAME_SIZE, 0, 0, CV_INTER_AREA);
     cvtColor(_nextFrame, _nextFrame, CV_BGR2GRAY);
 }
 
@@ -523,9 +542,9 @@ void ProcessingTask::estimateFPS() {
             _prevFrame = _currentFrame;
             _currentFrame = _nextFrame;
 
-            _cap.read(_rawFrame);
+            _cap.read(_originalFrame);
 
-            cv::resize(_rawFrame, _nextFrame, DEFAULT_PROCESSED_FRAME_SIZE, 0, 0, CV_INTER_AREA);
+            cv::resize(_originalFrame, _nextFrame, DEFAULT_PROCESSED_FRAME_SIZE, 0, 0, CV_INTER_AREA);
 
             _result = _nextFrame;
 

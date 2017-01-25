@@ -80,8 +80,9 @@ enum Quadrant {
 class ProcessingTask {
 public:
     ProcessingTask();
-    ProcessingTask(std::string events_storage_path, int capDeviceIndex, bool horizontal_tracking, bool vertical_tracking, std::list<Event*> * events_list,
-            BufferManager *buffer, SynchronizationAndStatusDealer *synchAndStatusDealer, bool show_motion);
+//    ProcessingTask(std::string events_storage_path, int capDeviceIndex, bool horizontal_tracking, bool vertical_tracking, std::list<Event*> * events_list,
+//            BufferManager *buffer, SynchronizationAndStatusDealer *synchAndStatusDealer, bool show_motion);
+    ProcessingTask(std::string events_storage_path, int capDeviceIndex, bool horizontal_tracking, bool vertical_tracking);
     virtual ~ProcessingTask();
     void start();
 private:
@@ -94,7 +95,7 @@ private:
     Event * _event;
 
     cv::VideoCapture _cap;
-    cv::Mat _rawFrame;
+    cv::Mat _originalFrame;
     cv::Mat _prevFrame;
     cv::Mat _currentFrame;
     cv::Mat _nextFrame;

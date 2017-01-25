@@ -24,12 +24,10 @@
 std::string getExecutionPath();
 bool createDirectoryTree(std::string path);
 bool createDirectory(std::string sub_path);
-bool setClientName(std::string * c_name);
-void readInicialFrame(cv::VideoCapture * cap_device, cv::Mat * f, cv::Mat * pf, cv::Mat * ppf);
+bool setMacFile(std::string * c_name);
+//void readInicialFrame(cv::VideoCapture * cap_device, cv::Mat * f, cv::Mat * pf, cv::Mat * ppf);
 void setFrameParameters(cv::Mat * f, int * f_width, int * f_height, int * pf_width, int * pf_height, int * max_mov_width, int * min_mov_width,
         int * min_horizontal_mov_dist, int * min_vertical_mov_dist, int * pf_border_width);
-void defineServoPosition(short int servo_channel, short int position);
-static bool ProcessingTaskInNormalFunction();
 
 cv::VideoCapture _cap;
 cv::Mat _frame;
@@ -63,74 +61,76 @@ std::mutex buffer_mutex;
 
 int main(int argc, char * argv[]) {
 
-    std::string _executablePath;
-    std::string _eventsStoragePath;
-    int _capDeviceIndex;
-    std::string _serverIP;
-    std::string _serverPort; // = "5570";
-    std::string _mac;
-    bool _horizontal_tracking;
-    bool _vertical_tracking;
-    bool _show_motion;
+    int arg_capDeviceIndex;
+    std::string arg_server_ip;
+    std::string arg_serverPort; // = "5570";
+    bool arg_horizontal_tracking;
+    bool arg_vertical_tracking;
 
-    /* É esperado 6 argumentos: o nome do programa (por padrão é passado),
+    std::string executablePath;
+    std::string eventsStoragePath;
+    std::string mac;
+    std::string client_id;
+
+    /* É esperado 5 argumentos: o nome do programa (por padrão é passado),
      * o índice do dispositivo de vídeo, o IP do server, a porta do server,
      * um número indicando se deve ser feito tracking horizontal e vertical
      * com o servo, são dois números separados por espaço, 0 indicando que não deve ser feito,
      * e 1 undicando que deve, para tracking horizontal e vertical, respectivamente */
-    if (argc < 7) {
+    if (argc < 6) {
         MessageDealer::showErrorMessage("Usage: " + std::string(argv[0]) +
-                " <VIDEO DEVICE INDEX> <SERVER IP> <SERVER PORT> "
+                " <VIDEO DEVICE INDEX> "
+                "<SERVER IP> "
+                "<SERVER PORT> "
                 "<HORIZONTAL TRACKING [0 = false, 1 = true]> "
-                "<VERTICAL TRACKING [0 = false, 1 = true]>"
-                "<SHOW MOTION [0 = false, 1 = true]>");
+                "<VERTICAL TRACKING [0 = false, 1 = true]>");
         exit(1);
+    }
 
+    arg_capDeviceIndex = atoi(argv[1]);
+    arg_server_ip = argv[2];
+    arg_serverPort = argv[3];
+    (std::strcmp(argv[4], "1") == 0) ? arg_horizontal_tracking = true : arg_horizontal_tracking = false;
+    (std::strcmp(argv[5], "1") == 0) ? arg_vertical_tracking = true : arg_vertical_tracking = false;
+
+    if (!setMacFile(&mac)) {
+        MessageDealer::showErrorMessage("MAC file doesn't find, it wasn't possible to define client ID");
+        exit(1);
+    }
+
+    client_id = mac + std::to_string(arg_capDeviceIndex);
+    executablePath = getExecutionPath();
+    eventsStoragePath = executablePath + std::string("/events/") + client_id;
+
+    if (createDirectoryTree(eventsStoragePath)) {
+        MessageDealer::showMessage("Events Storage directory created. Directory path: " + eventsStoragePath);
     } else {
-        _executablePath = getExecutionPath();
-        _eventsStoragePath = _executablePath + std::string("/eventsStorage");
-        _capDeviceIndex = atoi(argv[1]);
-        _serverIP = argv[2];
-        _serverPort = argv[3];
-        (std::strcmp(argv[4], "1") == 0) ? _horizontal_tracking = true : _horizontal_tracking = false;
-        (std::strcmp(argv[5], "1") == 0) ? _vertical_tracking = true : _vertical_tracking = false;
-        (std::strcmp(argv[6], "1") == 0) ? _show_motion = true : _show_motion = false;
-
-        MessageDealer::showMessage(
-                "\nExecutablePath: " + _executablePath +
-                "\nCapture device index: " + std::to_string(_capDeviceIndex) +
-                "\nServer IP: " + _serverIP +
-                "\nServer port: " + _serverPort +
-                "\nHorizontal tracking enabled: " + (_horizontal_tracking == 1 ? "true" : "false") +
-                "\nVertical tracking enabled: " + (_vertical_tracking == 1 ? "true" : "false") +
-                "\n");
-    }
-
-    if (createDirectoryTree(_eventsStoragePath)) {
-        MessageDealer::showErrorMessage("Events Storage directory created. Directory path: " + _eventsStoragePath);
-    }
-
-    if (!setClientName(&_mac)) {
-        MessageDealer::showErrorMessage("MAC file doesn't find, it wasn't possible to define client name");
+        MessageDealer::showErrorMessage("Could not create events Storage directory. Directory path: " + eventsStoragePath);
         exit(1);
     }
 
-    //int capDeviceIndex;
-    BufferManager frameBuffer;
-    SynchronizationAndStatusDealer synchAndStatusDealer;
+    MessageDealer::showMessage(
+            "\nExecutablePath: " + executablePath +
+            "\nCapture device index: " + std::to_string(arg_capDeviceIndex) +
+            "\nServer IP: " + arg_server_ip +
+            "\nServer port: " + arg_serverPort +
+            "\nHorizontal tracking enabled: " + (arg_horizontal_tracking == 1 ? "true" : "false") +
+            "\nVertical tracking enabled: " + (arg_vertical_tracking == 1 ? "true" : "false") +
+            "\n");
 
-    ProcessingTask pt(_eventsStoragePath, _capDeviceIndex, _horizontal_tracking, _vertical_tracking, &_eventsList, &frameBuffer, &synchAndStatusDealer, _show_motion);
-    StorageTask st(&frameBuffer, &synchAndStatusDealer);
-    ClientTask ct(_mac, _serverIP, _serverPort, &frameBuffer, &synchAndStatusDealer);
+    ProcessingTask pt(eventsStoragePath, arg_capDeviceIndex, arg_horizontal_tracking, arg_vertical_tracking,);
+    //    ProcessingTask pt(_eventsStoragePath, _capDeviceIndex, _horizontal_tracking, _vertical_tracking, &_eventsList, &frameBuffer, &synchAndStatusDealer, _show_motion);
+    //    StorageTask st(&frameBuffer, &synchAndStatusDealer);
+    //    ClientTask ct(_mac, _serverIP, _serverPort, &frameBuffer, &synchAndStatusDealer);
 
     std::thread tp(&ProcessingTask::start, &pt);
-    std::thread ts(&StorageTask::start, &st);
-    std::thread tc(&ClientTask::start, &ct);
+    //    std::thread ts(&StorageTask::start, &st);
+    //    std::thread tc(&ClientTask::start, &ct);
 
     MessageDealer::showMessage("Main execution will join tasks and wait to finish it's execution.");
     tp.join();
-    ts.join();
-    tc.join();
+    //    ts.join();
+    //    tc.join();
     MessageDealer::showMessage("Main execution finished, process terminated!");
 
     return 0;
@@ -168,26 +168,26 @@ bool createDirectory(std::string sub_path) {
     return true;
 }
 
-bool setClientName(std::string * c_name) {
-    bool client_set = false;
+bool setMacFile(std::string * c_name) {
+    bool client_id_set = false;
     std::ifstream infile("mac.txt");
 
     if (infile.good()) {
         std::getline(infile, *c_name);
-        client_set = true;
+        client_id_set = true;
     } else {
         MessageDealer::showErrorMessage("Could'not read mac.txt file");
     }
     infile.close();
 
-    return client_set;
+    return client_id_set;
 }
 
-void readInicialFrame(cv::VideoCapture * cap_device, cv::Mat * f, cv::Mat * pf, cv::Mat * ppf) {
-    cap_device->read(*f);
-    cv::resize(*f, *pf, DEFAULT_PROCESSED_FRAME_SIZE, 0, 0, CV_INTER_AREA);
-    *ppf = pf->clone();
-}
+//void readInicialFrame(cv::VideoCapture * cap_device, cv::Mat * f, cv::Mat * pf, cv::Mat * ppf) {
+//    cap_device->read(*f);
+//    cv::resize(*f, *pf, DEFAULT_PROCESSED_FRAME_SIZE, 0, 0, CV_INTER_AREA);
+//    *ppf = pf->clone();
+//}
 
 void setFrameParameters(cv::Mat * f, int * f_width, int * f_height, int * pf_width, int * pf_height, int * max_mov_width,
         int * min_mov_width, int * min_horizontal_mov_dist, int * min_vertical_mov_dist, int * pf_border_width) {
@@ -205,5 +205,5 @@ void setFrameParameters(cv::Mat * f, int * f_width, int * f_height, int * pf_wid
     *min_horizontal_mov_dist = *pf_width / 10; // a distancia horizontal percorrida entre detecções deve ser de no mínimo 10% do tamanho horzontal da imagem processada
     *min_vertical_mov_dist = *pf_height / 10; // a distancia vertical percorrida entre detecções deve ser de no mínimo 10% do tamanho vertical da imagem processada
 
-    std::cout << "Processed Frame size = " << *pf_width << "x" << *pf_height << ", area = " << (*pf_width) * (*pf_height) << std::endl;
+    std::cout << "Configured frame size for processing: " << *pf_width << "x" << *pf_height << ", area = " << (*pf_width) * (*pf_height) << std::endl;
 }
