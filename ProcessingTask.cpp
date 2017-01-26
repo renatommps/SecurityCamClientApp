@@ -1,11 +1,5 @@
-/* 
- * File:   processing_task.cpp
- * Author: renato
- * 
- * Created on 30 de Agosto de 2016, 15:00
- */
-
 #include <core/mat.hpp>
+#include <thread>
 #include "ProcessingTask.h"
 
 ProcessingTask::ProcessingTask() {
@@ -18,32 +12,31 @@ ProcessingTask::ProcessingTask() {
     cv::Scalar myColor(0, 255, 255);
     _color = myColor;
 
-    _synchAndStatusDealer->setMotionEventStatus(false);
-
     _servoHorizontalMovementEnable = false;
     _servoVerticalMovementEnable = false;
 
-    _event = nullptr;
+    _event_running = false;
+    _executionError = false;
 }
 
-ProcessingTask::ProcessingTask(std::string events_storage_path, int capDeviceIndex, bool horizontal_tracking, bool vertical_tracking) :
-_eventsStoragePath(events_storage_path), _capDeviceIndex(capDeviceIndex), _servoHorizontalMovementEnable(horizontal_tracking),
-_servoVerticalMovementEnable(vertical_tracking) {
-
-    _kernelErode = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
-    _minMotionValue = 5;
-    _maxDeviation = 20;
-    _numberOfChanges = 0;
-    _numberOfConsecutiveMotionSequence = 0;
-    _showMotion = _showMotion;
-
-    cv::Scalar myColor(0, 255, 255);
-    _color = myColor;
-
-    _synchAndStatusDealer->setMotionEventStatus(false);
-
-    _event = nullptr;
-}
+//ProcessingTask::ProcessingTask(std::string events_storage_path, int capDeviceIndex, bool horizontal_tracking, bool vertical_tracking) :
+//_eventsStoragePath(events_storage_path), _capDeviceIndex(capDeviceIndex), _servoHorizontalMovementEnable(horizontal_tracking),
+//_servoVerticalMovementEnable(vertical_tracking) {
+//
+//    _kernelErode = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
+//    _minMotionValue = 5;
+//    _maxDeviation = 20;
+//    _numberOfChanges = 0;
+//    _numberOfConsecutiveMotionSequence = 0;
+//    _showMotion = _showMotion;
+//
+//    cv::Scalar myColor(0, 255, 255);
+//    _color = myColor;
+//
+//    _synchAndStatusDealer->setMotionEventStatus(false);
+//
+//    _event = nullptr;
+//}
 
 ProcessingTask::~ProcessingTask() {
 }
@@ -67,7 +60,7 @@ void ProcessingTask::start() {
         resetBackgroundModelFrames();
 
         /* fluxo normal de execução*/
-        while (!_synchAndStatusDealer->ProcessingTaskHasError()) {
+        while (!_executionError) {
 
             /* atualiza o frame anterior e o frame corrente */
             _prevFrame = _currentFrame;
@@ -76,12 +69,16 @@ void ProcessingTask::start() {
             /* lê o próximo frame do dispositivo de vídeo */
             _cap.read(_originalFrame);
 
-            /* atualiza o próximo frame usado para processamento (redimensiona e transforma em gray scale */
+            /* atualiza o Frame de streaming (mudar depois, esta ERRADO, tem de ser em outra thread !!!!!!!!!!!!!) */
+            _streamingFrame = Frame(_streamingFrame, std::time(nullptr));
+
+            /* redimensiona o próximo frame usado para processamento */
             cv::resize(_originalFrame, _nextFrame, DEFAULT_PROCESSED_FRAME_SIZE, 0, 0, CV_INTER_AREA);
 
-            /* frame resultante, que sera usado para mostrar o processamento (temporário, para testes, remover no futuro) */
+            /* atualiza frame resultante, que sera usado para mostrar o processamento (temporário, para testes, remover no futuro) */
             _result = _nextFrame;
 
+            /* transforma em gray scale o próximo frame usado para processamento */
             cvtColor(_nextFrame, _nextFrame, CV_BGR2GRAY);
 
             /* calcula a diferença entre os frames (Differential Substracting) */
@@ -101,20 +98,32 @@ void ProcessingTask::start() {
             detectMotion();
 
             /* verifica se já existe um evento em aberto (evento occorendo) */
-            if (_synchAndStatusDealer->getMotionEventStatus()) {
+            if (_event_running) {
+                /* gerencia um evento já criado */
                 manageEvent();
             } else {
                 /* se aconteçeram muitas mudanças, assumimos que algo mudou na imagem */
                 if (_thereIsValidMotion) {
                     if (_numberOfConsecutiveMotionSequence > 1) {
+                        /* inicia um novo evento */
                         startEvent();
-                        //manageEvent();
-                        //                        saveImg(result, DIR, EXT, DIR_FORMAT.c_str(), FILE_FORMAT.c_str());
-                        //                        saveImg(result_cropped, DIR, EXT, DIR_FORMAT.c_str(), CROPPED_FILE_FORMAT.c_str());
+                        // saveImg(result, DIR, EXT, DIR_FORMAT.c_str(), FILE_FORMAT.c_str());
+                        // saveImg(result_cropped, DIR, EXT, DIR_FORMAT.c_str(), CROPPED_FILE_FORMAT.c_str());
                     }
                     _numberOfConsecutiveMotionSequence++;
                 } else {
+                    /* zera o número de frames consecutivos com movimento válido
+                     * (válido para que seja considerável como um evento) */
                     _numberOfConsecutiveMotionSequence = 0;
+
+                    /* adiciona o frame original no buffer de frames */
+                    _frameBuffer->push_back(_originalFrame);
+                    
+                    /* se o buffer de frames é maior que o tamanho permitido,
+                      então remove o primeiro elemento */
+                    if (_frameBuffer->size() > 10) {
+                        _frameBuffer->pop_front();
+                    }
                 }
             }
 
@@ -125,22 +134,19 @@ void ProcessingTask::start() {
             if (cv::waitKey(1000 / _fps) >= 0) break;
         }
         _cap.release();
-        _synchAndStatusDealer->setProcessingTaskExecutionStatus(false);
 
-        if (_event) {
+        if (_event_running) {
             finalizeEvent();
         }
         MessageDealer::showMessage("Processing thread exit while loop!");
     } catch (std::exception & e) {
         _cap.release();
-        _synchAndStatusDealer->setProcessingTaskErrorStatus(true);
 
-        if (_event) {
+        if (_event_running) {
             finalizeEvent();
         }
         MessageDealer::showErrorMessage(std::string("Error in processing task : ") + std::string(e.what()));
     }
-
     MessageDealer::showMessage("Processing thread finished execution!");
 }
 
@@ -156,28 +162,18 @@ std::string ProcessingTask::getFormatedTime(std::time_t raw_time, std::string fo
 void ProcessingTask::startEvent() {
     std::time_t time_now = std::time(nullptr);
 
-    _synchAndStatusDealer->setMotionEventStatus(true);
     _eventStartTime = time_now;
     _lastMotionDetectedTime = time_now;
-    _eventFramesCounter = 0;
 
-    // o id do evento é a data que ele foi criado (garantindo assim um id único para cada evento criado)
-    std::string event_id = getFormatedTime(time_now, "%Y-%m-%d-%H-%M-%S");
-    std::string video_name = getFormatedTime(time_now, "%Y-%m-%d-%H-%M-%S");
-    std::string video_extention = ".avi";
-
-    _frameBuffer->pushBackFrame(_originalFrame, EVENT_START);
-
-    _event = new Event(event_id, _eventsStoragePath, video_name, video_extention, _eventStartTime, _fps, cv::Size(_originalFrame.cols, _originalFrame.rows));
-    MessageDealer::showMessage("Evento iniciado em " + getFormatedTime(time_now, "%H:%M:%S"));
-
-    _lastMotionDetectedTime = time_now;
     followDetectedMotion();
 
-    _eventFramesCounter++;
-    if (_event) {
-        _event->incrementFramesQuantity();
-    }
+    event_task = new Event(_frameBuffer, _MotionQuantity);
+    std::thread event_thread(&Event::start, event_task);
+    event_thread.detach();
+
+    _event_running = true;
+
+    MessageDealer::showMessage("Processing thread created event em detached it.");
 }
 
 void ProcessingTask::manageEvent() {
@@ -187,11 +183,8 @@ void ProcessingTask::manageEvent() {
         _lastMotionDetectedTime = time_now;
         followDetectedMotion();
 
-        _eventFramesCounter++;
-        _frameBuffer->pushBackFrame(_originalFrame, INSIDE_EVENT);
-
-        if (_event) {
-            _event->incrementFramesQuantity();
+        if (_event_running) {
+            event_task->addFrameToBuffer();
         }
     } else {
         std::time_t event_duration = time_now - _eventStartTime;
@@ -336,8 +329,8 @@ void ProcessingTask::resetBackgroundModelFrames() {
 
     /* lê o primeiro frame (frame anterior) */
     _cap.read(_originalFrame);
-    /* adiciona o frame lido no buffer de frames */
-    _frameBuffer->pushBackFrame(_originalFrame);
+    //    /* adiciona o frame lido no buffer de frames */
+    //    _frameBuffer->pushBackFrame(_originalFrame);
     /* redimensiona o frame lido (por questões de desempenho,
      * somente o frame redimensionado sera usado para processamento) */
     cv::resize(_originalFrame, _prevFrame, DEFAULT_PROCESSED_FRAME_SIZE, 0, 0, CV_INTER_AREA);
@@ -346,13 +339,13 @@ void ProcessingTask::resetBackgroundModelFrames() {
 
     /* lê o segundo frame (frame corrente) */
     _cap.read(_originalFrame);
-    _frameBuffer->pushBackFrame(_originalFrame);
+    //    _frameBuffer->pushBackFrame(_originalFrame);
     cv::resize(_originalFrame, _currentFrame, DEFAULT_PROCESSED_FRAME_SIZE, 0, 0, CV_INTER_AREA);
     cvtColor(_currentFrame, _currentFrame, CV_BGR2GRAY);
 
     /* lê o terceiro frame (próximo frame) */
     _cap.read(_originalFrame);
-    _frameBuffer->pushBackFrame(_originalFrame);
+    //    _frameBuffer->pushBackFrame(_originalFrame);
     cv::resize(_originalFrame, _nextFrame, DEFAULT_PROCESSED_FRAME_SIZE, 0, 0, CV_INTER_AREA);
     cvtColor(_nextFrame, _nextFrame, CV_BGR2GRAY);
 }
@@ -411,7 +404,7 @@ void ProcessingTask::detectMotion() {
 
         if (_numberOfChanges >= _minMotionValue) {
             _thereIsValidMotion = true;
-            if (_event) {
+            if (_event_running) {
                 _event->incrementMotionQuantity(_numberOfChanges);
             }
 
@@ -485,9 +478,7 @@ void ProcessingTask::defineMotionQuadrant() {
     if (_motionCenter.x < DEFAULT_PROCESSED_FRAME_CENTER.x && _motionCenter.y >= DEFAULT_PROCESSED_FRAME_CENTER.y) _quadrant = up_left;
 }
 
-bool ProcessingTask::openAndConfigureVideoDevice() {
-    bool statusError = false;
-
+void ProcessingTask::openAndConfigureVideoDevice() {
     try {
         // abre dispositivo de vídeo com o argumento passado (índice do dispositivo de vídeo)
         _cap.open(_capDeviceIndex);
@@ -497,14 +488,12 @@ bool ProcessingTask::openAndConfigureVideoDevice() {
             _cap.set(CV_CAP_PROP_FRAME_HEIGHT, DEFAULT_HEIGHT);
         } else {
             _executionError = true;
-            _synchAndStatusDealer->setProcessingTaskErrorStatus(true);
             MessageDealer::showErrorMessage(std::string("Cannot open/configure the video device with index ") + std::to_string(_capDeviceIndex));
         }
     } catch (std::exception & e) {
-        statusError = true;
-        MessageDealer::showErrorMessage(std::string("Error in processing task : ") + std::string(e.what()));
+        _executionError = true;
+        MessageDealer::showErrorMessage(std::string("Error in processing task while openning video device: ") + std::string(e.what()));
     }
-    return statusError;
 }
 
 void ProcessingTask::estimateFPS() {
@@ -516,7 +505,7 @@ void ProcessingTask::estimateFPS() {
         time(&start); // define o tempo inicial
 
         /* fluxo normal de execução*/
-        while (!_synchAndStatusDealer->ProcessingTaskHasError() && cont < num_frames) {
+        while (!_executionError && cont < num_frames) {
 
             _prevFrame = _currentFrame;
             _currentFrame = _nextFrame;
@@ -542,9 +531,9 @@ void ProcessingTask::estimateFPS() {
 
             cont++;
 
-            /* mostra os resultados da detecção de movimentos */
-            cv::imshow("Motion", _motion);
-            cv::imshow("Result", _result);
+            //            /* mostra os resultados da detecção de movimentos */
+            //            cv::imshow("Motion", _motion);
+            //            cv::imshow("Result", _result);
 
             if (cv::waitKey(30) >= 0) break;
         }
@@ -558,7 +547,8 @@ void ProcessingTask::estimateFPS() {
         MessageDealer::showMessage("FPS estimado:" + std::to_string(_fps));
     } catch (std::exception & e) {
         _cap.release();
-        _synchAndStatusDealer->setProcessingTaskErrorStatus(true);
+        _executionError = true;
+        //        _synchAndStatusDealer->setProcessingTaskErrorStatus(true);
         MessageDealer::showErrorMessage(std::string("Error in processing task while treining FPS rate: ") + std::string(e.what()));
     }
 }

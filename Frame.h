@@ -15,26 +15,20 @@
 #define FRAME_H
 
 #include "opencv2/highgui/highgui.hpp"
-
-enum Type {
-    OUTSIDE_EVENT,
-    EVENT_START,
-    INSIDE_EVENT,
-    EVENT_END
-};
+#include <ctime>            // std::time_t
+#include <time.h>           // time_t, time, ctime
 
 class Frame {
 public:
-    Frame(cv::Mat frame, Type type);
-    Frame(cv::Mat frame);
+    Frame(cv::Mat frame, std::time_t time);
     Frame(const Frame& orig);
     virtual ~Frame();
     
     cv::Mat getFrame();
-    Type getType();
+    std::time_t getTime();
 private:
     cv::Mat _frame;
-    Type _type; // indica se o frame não pertence a um evento, inicia um evento, esta contido em um evento, ou termina um evento
+    std::time_t _time;
 };
 
 #endif /* FRAME_H */

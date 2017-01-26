@@ -13,10 +13,7 @@
 
 #include "Frame.h"
 
-Frame::Frame(cv::Mat frame, Type type) : _frame(frame), _type(type) {
-}
-
-Frame::Frame(cv::Mat frame) : _frame(frame), _type(OUTSIDE_EVENT) {
+Frame::Frame(cv::Mat frame, std::time_t time): _frame(frame), _time(time) {
 }
 
 Frame::Frame(const Frame& orig) {
@@ -29,6 +26,6 @@ cv::Mat Frame::getFrame() {
     return _frame;
 }
 
-Type Frame::getType() {
-    return _type;
+std::time_t Frame::getTime() {
+    return _time;
 }

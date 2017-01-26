@@ -1,14 +1,7 @@
-/* 
- * File:   processing_task.h
- * Author: renato
- *
- * Created on 30 de Agosto de 2016, 15:00
- */
-
 #ifndef PROCESSINGTASK_H
 #define PROCESSINGTASK_H
 
-#include <string>       //std::string
+#include <string>           // std::string
 #include <opencv2/opencv.hpp>
 #include "opencv2/highgui/highgui.hpp"
 #include <videoio.hpp>
@@ -17,10 +10,10 @@
 #include <list>             // std::list
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <ctime>        //std::time_t
-#include <fstream>      //std::ofstream
-#include <sstream>      // std::stringstream
-#include <time.h>       //time_t, time, ctime
+#include <ctime>            // std::time_t
+#include <fstream>          // std::ofstream
+#include <sstream>          // std::stringstream
+#include <time.h>           // time_t, time, ctime
 
 #include "MessageDealer.h"
 #include "BufferManager.h"
@@ -89,9 +82,8 @@ private:
 
     std::string _eventsStoragePath;
 
-    std::list<Event*> * _eventsList;
-    Event * _event;
-
+    Event * event_task;
+        
     cv::VideoCapture _cap;
     cv::Mat _originalFrame;
     cv::Mat _prevFrame;
@@ -100,7 +92,7 @@ private:
     cv::Mat _d1; // diferença entre _prevFrame e _nextFrame
     cv::Mat _d2; // diferença entre _nextFrame e _currentFrame
     cv::Mat _result; // resultado da operação, calculado sobre _d1 e _d2
-    cv::Mat resultCropped;
+    cv::Mat _resultCropped;
     cv::Mat _motion;
     cv::Mat _kernelErode; // kernel de erosão
 
@@ -114,7 +106,6 @@ private:
     int _motion_max_x;
     int _motion_max_y;
     bool _thereIsValidMotion;
-    bool _showMotion;
 
     Horizontal_direction _horizontalDirection;
     Vertical_direction _verticalDirection;
@@ -125,21 +116,21 @@ private:
     cv::Rect _motion_rectangle;
     cv::Scalar _mean;
     cv::Scalar _color; // amarelo, a cor usada para desenhar um retangulo quando alguma coisa mudou (movimento)
-
-    BufferManager *_frameBuffer;
-    SynchronizationAndStatusDealer *_synchAndStatusDealer;
-
-    bool _MotionEvent;
+    double _MotionQuantity; // quantia de movimentação detectada
+    
+    std::list<Frame> *_frameBuffer;
+    Frame _streamingFrame;
+    
+    bool _event_running;
     std::time_t _eventStartTime;
     std::time_t _lastMotionDetectedTime;
-    int _eventFramesCounter;
 
     bool _servoHorizontalMovementEnable;
     bool _servoVerticalMovementEnable;
     short int _servoHorizontalPosition;
     short int _servoVerticalPosition;
 
-    bool openAndConfigureVideoDevice();
+    void openAndConfigureVideoDevice();
     void estimateFPS();
     void detectMotion();
     void followDetectedMotion();

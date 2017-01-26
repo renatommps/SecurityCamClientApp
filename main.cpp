@@ -1,13 +1,13 @@
-#include <stdlib.h>         // atoi
-#include <thread>           // std::thread
-#include <string>           // std::string
-#include <fstream>          // std::fstream
-#include <fstream>          // std::ofstream
-#include <list>             // std::list
-#include <unistd.h>         // std::usleep
-#include <chrono>           // std::chrono::milliseconds
-#include <mutex>               // std::mutex, std::unique_lock
-#include <condition_variable>  // std::condition_variable
+#include <stdlib.h>             // atoi
+#include <thread>               // std::thread
+#include <string>               // std::string
+#include <fstream>              // std::fstream
+#include <fstream>              // std::ofstream
+#include <list>                 // std::list
+#include <unistd.h>             // std::usleep
+#include <chrono>               // std::chrono::milliseconds
+#include <mutex>                // std::mutex, std::unique_lock
+#include <condition_variable>   // std::condition_variable
 #include <opencv2/opencv.hpp>
 #include <zmq.hpp>
 
@@ -47,17 +47,17 @@ int _minimal_movement_width;
 int _minimalHorizontalMomementDistance;
 int _minimalVerticalMomementDistance;
 
-bool errorOnProcessingTask = false;
-bool ProcessingTaskDone = false;
-bool errorOnClientTask = false;
-bool clientThreadNotified = false;
-bool clientTaskInitializad = false;
-
-std::condition_variable cond_var;
-std::mutex variable_access_mutex;
-std::mutex sincronization_mutex;
-std::mutex clientFrame_mutex;
-std::mutex buffer_mutex;
+//bool errorOnProcessingTask = false;
+//bool ProcessingTaskDone = false;
+//bool errorOnClientTask = false;
+//bool clientThreadNotified = false;
+//bool clientTaskInitializad = false;
+//
+//std::condition_variable cond_var;
+//std::mutex variable_access_mutex;
+//std::mutex sincronization_mutex;
+//std::mutex clientFrame_mutex;
+//std::mutex buffer_mutex;
 
 int main(int argc, char * argv[]) {
 
@@ -75,8 +75,9 @@ int main(int argc, char * argv[]) {
     /* É esperado 5 argumentos: o nome do programa (por padrão é passado),
      * o índice do dispositivo de vídeo, o IP do server, a porta do server,
      * um número indicando se deve ser feito tracking horizontal e vertical
-     * com o servo, são dois números separados por espaço, 0 indicando que não deve ser feito,
-     * e 1 undicando que deve, para tracking horizontal e vertical, respectivamente */
+     * com o servo, são dois números separados por espaço, 0 indicando que não
+     * deve ser feito, e 1 undicando que deve, para tracking horizontal e
+     * vertical, respectivamente */
     if (argc < 6) {
         MessageDealer::showErrorMessage("Usage: " + std::string(argv[0]) +
                 " <VIDEO DEVICE INDEX> "
@@ -118,7 +119,7 @@ int main(int argc, char * argv[]) {
             "\nVertical tracking enabled: " + (arg_vertical_tracking == 1 ? "true" : "false") +
             "\n");
 
-    ProcessingTask pt(eventsStoragePath, arg_capDeviceIndex, arg_horizontal_tracking, arg_vertical_tracking,);
+    ProcessingTask pt(eventsStoragePath, arg_capDeviceIndex, arg_horizontal_tracking, arg_vertical_tracking);
     //    ProcessingTask pt(_eventsStoragePath, _capDeviceIndex, _horizontal_tracking, _vertical_tracking, &_eventsList, &frameBuffer, &synchAndStatusDealer, _show_motion);
     //    StorageTask st(&frameBuffer, &synchAndStatusDealer);
     //    ClientTask ct(_mac, _serverIP, _serverPort, &frameBuffer, &synchAndStatusDealer);
@@ -129,6 +130,7 @@ int main(int argc, char * argv[]) {
 
     MessageDealer::showMessage("Main execution will join tasks and wait to finish it's execution.");
     tp.join();
+
     //    ts.join();
     //    tc.join();
     MessageDealer::showMessage("Main execution finished, process terminated!");
