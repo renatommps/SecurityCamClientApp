@@ -60,8 +60,8 @@ private:
 //    EventStorageTask _eventStorageTask;
 //    EventTransferTask _eventTransferTask;
     
-    std::list<Frame> _frameBuffer;
-    SharedFrameBuffer * _sharedFrameBuffer;
+    //std::list<Frame> _frameBuffer;
+    SharedFrameBuffer _sharedFrameBuffer;
 };
 
 #endif /* EVENT_H */

@@ -10,7 +10,7 @@ Event::Event(SharedFrameBuffer frameBuffer, std::list<Frame> *_frameBuffer, doub
     _verticalDirection = 0;
     _motionQuantity = 0;
 
-    _frameBuffer->assign(*_frameBuffer);
+    _sharedFrameBuffer.assign(frameBuffer);
     
     MessageDealer::showMessage("Evento instanciado em " + getFormatedTime(_startTime, "%H:%M:%S"));
     MessageDealer::showMessage("Tamaho do buffer de frames do evento: " + std::to_string(_frameBuffer->size()));

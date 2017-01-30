@@ -9,6 +9,10 @@ SharedFrameBuffer::SharedFrameBuffer(const SharedFrameBuffer& orig) {
 SharedFrameBuffer::~SharedFrameBuffer() {
 }
 
+void SharedFrameBuffer::assign(std::list<Frame> * frameBuffer){
+    _frameBuffer.assign(frameBuffer);
+}
+
 void SharedFrameBuffer::pushBackFrame(Frame frame) {
     Frame f(frame);
     
