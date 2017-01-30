@@ -16,7 +16,7 @@
 
 #include <string>       //std::string
 #include "MessageDealer.h"
-#include "BufferManager.h"
+#include "SharedFrameBuffer.h"
 #include "SynchronizationAndStatusDealer.h"
 
 class ClientTask {

@@ -4,12 +4,12 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Arquivos de Cabeçalho"
                    projectFiles="true">
-      <itemPath>BufferManager.h</itemPath>
       <itemPath>ClientTask.h</itemPath>
       <itemPath>Event.h</itemPath>
       <itemPath>Frame.h</itemPath>
       <itemPath>MessageDealer.h</itemPath>
       <itemPath>ProcessingTask.h</itemPath>
+      <itemPath>SharedBuffer.h</itemPath>
       <itemPath>StorageTask.h</itemPath>
       <itemPath>SynchronizationAndStatusDealer.h</itemPath>
       <itemPath>zhelpers.hpp</itemPath>
@@ -17,12 +17,12 @@
     <logicalFolder name="SourceFiles"
                    displayName="Arquivos de Código-Fonte"
                    projectFiles="true">
-      <itemPath>BufferManager.cpp</itemPath>
       <itemPath>ClientTask.cpp</itemPath>
       <itemPath>Event.cpp</itemPath>
       <itemPath>Frame.cpp</itemPath>
       <itemPath>MessageDealer.cpp</itemPath>
       <itemPath>ProcessingTask.cpp</itemPath>
+      <itemPath>SharedFrameBuffer.cpp</itemPath>
       <itemPath>StorageTask.cpp</itemPath>
       <itemPath>SynchronizationAndStatusDealer.cpp</itemPath>
       <itemPath>main.cpp</itemPath>
@@ -99,10 +99,6 @@
           </linkerLibItems>
         </linkerTool>
       </compileType>
-      <item path="BufferManager.cpp" ex="false" tool="1" flavor2="0">
-      </item>
-      <item path="BufferManager.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="ClientTask.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="ClientTask.h" ex="false" tool="3" flavor2="0">
@@ -122,6 +118,10 @@
       <item path="ProcessingTask.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="ProcessingTask.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="SharedBuffer.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="SharedFrameBuffer.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="StorageTask.cpp" ex="false" tool="1" flavor2="0">
       </item>
@@ -156,10 +156,6 @@
           <developmentMode>5</developmentMode>
         </asmTool>
       </compileType>
-      <item path="BufferManager.cpp" ex="false" tool="1" flavor2="0">
-      </item>
-      <item path="BufferManager.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="ClientTask.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="ClientTask.h" ex="false" tool="3" flavor2="0">
@@ -179,6 +175,10 @@
       <item path="ProcessingTask.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="ProcessingTask.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="SharedBuffer.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="SharedFrameBuffer.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="StorageTask.cpp" ex="false" tool="1" flavor2="0">
       </item>

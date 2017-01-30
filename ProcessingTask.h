@@ -1,24 +1,24 @@
 #ifndef PROCESSINGTASK_H
 #define PROCESSINGTASK_H
 
-#include <string>           // std::string
+
 #include <opencv2/opencv.hpp>
 #include "opencv2/highgui/highgui.hpp"
 #include <videoio.hpp>
 #include <sstream>
 #include <dirent.h>
-#include <list>             // std::list
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <ctime>            // std::time_t
-#include <fstream>          // std::ofstream
-#include <sstream>          // std::stringstream
-#include <time.h>           // time_t, time, ctime
-
+#include <list>                         // std::list
+#include <string>                       // std::string
+#include <ctime>                        // std::time_t
+#include <fstream>                      // std::ofstream
+#include <sstream>                      // std::stringstream
+#include <time.h>                       // time_t, time, ctime
+#include "SharedFrameBuffer.h"
 #include "MessageDealer.h"
-#include "BufferManager.h"
-#include "SynchronizationAndStatusDealer.h"
 #include "Event.h"
+
 
 const int DELAY = 30; // em milissegundos, delay entre frames
 const short int DEFAULT_WIDTH = 640; // width (largura) padão do frame
@@ -115,7 +115,7 @@ private:
     cv::Point _motionCenter;
     cv::Rect _motion_rectangle;
     cv::Scalar _mean;
-    cv::Scalar _color; // amarelo, a cor usada para desenhar um retangulo quando alguma coisa mudou (movimento)
+    cv::Scalar _color;      // amarelo, cor do retangulo que delimita detecções
     double _MotionQuantity; // quantia de movimentação detectada
     
     std::list<Frame> *_frameBuffer;
@@ -124,7 +124,8 @@ private:
     bool _event_running;
     std::time_t _eventStartTime;
     std::time_t _lastMotionDetectedTime;
-
+    SharedFrameBuffer * _sharedFrameBuffer;
+    
     bool _servoHorizontalMovementEnable;
     bool _servoVerticalMovementEnable;
     short int _servoHorizontalPosition;
@@ -140,10 +141,9 @@ private:
     void startEvent();
     void manageEvent();
     void finalizeEvent();
-    std::string getFormatedTime(std::time_t raw_time, std::string format);
-
     void servoHorizontalMovement(short int value);
     void servoVerticalMovement(short int value);
+    std::string getFormatedTime(std::time_t raw_time, std::string format);
 };
 
 #endif /* PROCESSINGTASK_H */

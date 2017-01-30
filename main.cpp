@@ -12,8 +12,6 @@
 #include <zmq.hpp>
 
 #include "zhelpers.hpp"
-#include "BufferManager.h"
-#include "SynchronizationAndStatusDealer.h"
 #include "MessageDealer.h"
 #include "ProcessingTask.h"
 #include "StorageTask.h"
@@ -25,7 +23,6 @@ std::string getExecutionPath();
 bool createDirectoryTree(std::string path);
 bool createDirectory(std::string sub_path);
 bool setMacFile(std::string * c_name);
-//void readInicialFrame(cv::VideoCapture * cap_device, cv::Mat * f, cv::Mat * pf, cv::Mat * ppf);
 void setFrameParameters(cv::Mat * f, int * f_width, int * f_height, int * pf_width, int * pf_height, int * max_mov_width, int * min_mov_width,
         int * min_horizontal_mov_dist, int * min_vertical_mov_dist, int * pf_border_width);
 
@@ -46,18 +43,6 @@ int _maximum_movement_width;
 int _minimal_movement_width;
 int _minimalHorizontalMomementDistance;
 int _minimalVerticalMomementDistance;
-
-//bool errorOnProcessingTask = false;
-//bool ProcessingTaskDone = false;
-//bool errorOnClientTask = false;
-//bool clientThreadNotified = false;
-//bool clientTaskInitializad = false;
-//
-//std::condition_variable cond_var;
-//std::mutex variable_access_mutex;
-//std::mutex sincronization_mutex;
-//std::mutex clientFrame_mutex;
-//std::mutex buffer_mutex;
 
 int main(int argc, char * argv[]) {
 

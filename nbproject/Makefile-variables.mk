@@ -9,19 +9,19 @@ CND_DISTDIR=dist
 # Debug configuration
 CND_PLATFORM_Debug=GNU-Linux
 CND_ARTIFACT_DIR_Debug=dist/Debug/GNU-Linux
-CND_ARTIFACT_NAME_Debug=zqmclient
-CND_ARTIFACT_PATH_Debug=dist/Debug/GNU-Linux/zqmclient
+CND_ARTIFACT_NAME_Debug=clientapplication
+CND_ARTIFACT_PATH_Debug=dist/Debug/GNU-Linux/clientapplication
 CND_PACKAGE_DIR_Debug=dist/Debug/GNU-Linux/package
-CND_PACKAGE_NAME_Debug=zqmclient.tar
-CND_PACKAGE_PATH_Debug=dist/Debug/GNU-Linux/package/zqmclient.tar
+CND_PACKAGE_NAME_Debug=clientapplication.tar
+CND_PACKAGE_PATH_Debug=dist/Debug/GNU-Linux/package/clientapplication.tar
 # Release configuration
 CND_PLATFORM_Release=GNU-Linux
 CND_ARTIFACT_DIR_Release=dist/Release/GNU-Linux
-CND_ARTIFACT_NAME_Release=zqmclient
-CND_ARTIFACT_PATH_Release=dist/Release/GNU-Linux/zqmclient
+CND_ARTIFACT_NAME_Release=clientapplication
+CND_ARTIFACT_PATH_Release=dist/Release/GNU-Linux/clientapplication
 CND_PACKAGE_DIR_Release=dist/Release/GNU-Linux/package
-CND_PACKAGE_NAME_Release=zqmclient.tar
-CND_PACKAGE_PATH_Release=dist/Release/GNU-Linux/package/zqmclient.tar
+CND_PACKAGE_NAME_Release=clientapplication.tar
+CND_PACKAGE_PATH_Release=dist/Release/GNU-Linux/package/clientapplication.tar
 #
 # include compiler specific variables
 #

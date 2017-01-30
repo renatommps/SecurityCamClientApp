@@ -22,7 +22,7 @@ Frame::Frame(const Frame& orig) {
 Frame::~Frame() {
 }
 
-cv::Mat Frame::getFrame() {
+cv::Mat Frame::getCvMat() {
     return _frame;
 }
 

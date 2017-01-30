@@ -1,32 +1,20 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/* 
- * File:   Event.h
- * Author: renato
- *
- * Created on 31 de Outubro de 2016, 15:54
- */
-
 #ifndef EVENT_H
 #define EVENT_H
 
-#include <list>         // std::list
-#include <ctime>        // std::time_t
-#include <time.h>       // time_t, time, ctime
-#include <string>       // std::string
 #include <opencv2/opencv.hpp>
 #include "opencv/highgui.h"
+#include <list>                 // std::list
+#include <ctime>                // std::time_t
+#include <time.h>               // time_t, time, ctime
+#include <string>               // std::string
 #include "MessageDealer.h"
+#include "SharedFrameBuffer.h"
 
 const int VIDEO_WRITER_CODEC = CV_FOURCC('M', 'J', 'P', 'G'); // {'F','M','P','4'}; // codec utilizado pelo VideoWriter
 
 class Event {
 public:
-    Event(std::list<Frame> *_frameBuffer, double initialMotionQuantity);
+    Event(SharedFrameBuffer frameBuffer, std::list<Frame> *_frameBuffer, double initialMotionQuantity);
     Event(const Event& orig);
     virtual ~Event();
     void start();
@@ -73,6 +61,7 @@ private:
 //    EventTransferTask _eventTransferTask;
     
     std::list<Frame> _frameBuffer;
+    SharedFrameBuffer * _sharedFrameBuffer;
 };
 
 #endif /* EVENT_H */

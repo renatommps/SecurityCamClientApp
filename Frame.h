@@ -24,7 +24,7 @@ public:
     Frame(const Frame& orig);
     virtual ~Frame();
     
-    cv::Mat getFrame();
+    cv::Mat getCvMat();
     std::time_t getTime();
 private:
     cv::Mat _frame;

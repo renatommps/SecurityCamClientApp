@@ -1,30 +1,17 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/* 
- * File:   Event.cpp
- * Author: renato
- * 
- * Created on 31 de Outubro de 2016, 15:54
- */
-
 #include "Event.h"
 #include "Frame.h"
 
-Event::Event(std::list<Frame> *_frameBuffer, double initialMotionQuantity) {
+Event::Event(SharedFrameBuffer frameBuffer, std::list<Frame> *_frameBuffer, double initialMotionQuantity) {
     _startTime = _frameBuffer->front().getTime();
     _id = getFormatedTime(_startTime, "%Y-%m-%d-%H-%M-%S");
-    _frameSize = _frameBuffer->front().getFrame().size;
+    _frameSize = _frameBuffer->front().getCvMat().size;
     _framesQuantity = _frameBuffer->size();
     _horizontalDirection = 0;
     _verticalDirection = 0;
     _motionQuantity = 0;
 
     _frameBuffer->assign(*_frameBuffer);
-
+    
     MessageDealer::showMessage("Evento instanciado em " + getFormatedTime(_startTime, "%H:%M:%S"));
     MessageDealer::showMessage("Tamaho do buffer de frames do evento: " + std::to_string(_frameBuffer->size()));
     MessageDealer::showMessage("Tamaho de _framesQuantity do evento: " + std::to_string(_framesQuantity));

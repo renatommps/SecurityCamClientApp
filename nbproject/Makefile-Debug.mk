@@ -35,12 +35,12 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
-	${OBJECTDIR}/BufferManager.o \
 	${OBJECTDIR}/ClientTask.o \
 	${OBJECTDIR}/Event.o \
 	${OBJECTDIR}/Frame.o \
 	${OBJECTDIR}/MessageDealer.o \
 	${OBJECTDIR}/ProcessingTask.o \
+	${OBJECTDIR}/SharedFrameBuffer.o \
 	${OBJECTDIR}/StorageTask.o \
 	${OBJECTDIR}/SynchronizationAndStatusDealer.o \
 	${OBJECTDIR}/main.o
@@ -64,16 +64,11 @@ LDLIBSOPTIONS=-L/usr/local/lib -Wl,-rpath,/usr/local/include/opencv2 -Wl,-rpath,
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
-	"${MAKE}"  -f nbproject/Makefile-${CND_CONF}.mk ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/zqmclient
+	"${MAKE}"  -f nbproject/Makefile-${CND_CONF}.mk ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/clientapplication
 
-${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/zqmclient: ${OBJECTFILES}
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/clientapplication: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
-	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/zqmclient ${OBJECTFILES} ${LDLIBSOPTIONS}
-
-${OBJECTDIR}/BufferManager.o: BufferManager.cpp 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} "$@.d"
-	$(COMPILE.cc) -g -I/usr/local/include/opencv2 `pkg-config --cflags pthread-stubs`   -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/BufferManager.o BufferManager.cpp
+	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/clientapplication ${OBJECTFILES} ${LDLIBSOPTIONS}
 
 ${OBJECTDIR}/ClientTask.o: ClientTask.cpp 
 	${MKDIR} -p ${OBJECTDIR}
@@ -100,6 +95,11 @@ ${OBJECTDIR}/ProcessingTask.o: ProcessingTask.cpp
 	${RM} "$@.d"
 	$(COMPILE.cc) -g -I/usr/local/include/opencv2 `pkg-config --cflags pthread-stubs`   -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/ProcessingTask.o ProcessingTask.cpp
 
+${OBJECTDIR}/SharedFrameBuffer.o: SharedFrameBuffer.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -I/usr/local/include/opencv2 `pkg-config --cflags pthread-stubs`   -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/SharedFrameBuffer.o SharedFrameBuffer.cpp
+
 ${OBJECTDIR}/StorageTask.o: StorageTask.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
@@ -121,7 +121,7 @@ ${OBJECTDIR}/main.o: main.cpp
 # Clean Targets
 .clean-conf: ${CLEAN_SUBPROJECTS}
 	${RM} -r ${CND_BUILDDIR}/${CND_CONF}
-	${RM} ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/zqmclient
+	${RM} ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/clientapplication
 
 # Subprojects
 .clean-subprojects:

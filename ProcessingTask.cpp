@@ -19,25 +19,6 @@ ProcessingTask::ProcessingTask() {
     _executionError = false;
 }
 
-//ProcessingTask::ProcessingTask(std::string events_storage_path, int capDeviceIndex, bool horizontal_tracking, bool vertical_tracking) :
-//_eventsStoragePath(events_storage_path), _capDeviceIndex(capDeviceIndex), _servoHorizontalMovementEnable(horizontal_tracking),
-//_servoVerticalMovementEnable(vertical_tracking) {
-//
-//    _kernelErode = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
-//    _minMotionValue = 5;
-//    _maxDeviation = 20;
-//    _numberOfChanges = 0;
-//    _numberOfConsecutiveMotionSequence = 0;
-//    _showMotion = _showMotion;
-//
-//    cv::Scalar myColor(0, 255, 255);
-//    _color = myColor;
-//
-//    _synchAndStatusDealer->setMotionEventStatus(false);
-//
-//    _event = nullptr;
-//}
-
 ProcessingTask::~ProcessingTask() {
 }
 
@@ -167,7 +148,9 @@ void ProcessingTask::startEvent() {
 
     followDetectedMotion();
 
-    event_task = new Event(_frameBuffer, _MotionQuantity);
+    _sharedFrameBuffer = new SharedFrameBuffer();
+    
+    event_task = new Event(_sharedFrameBuffer, _frameBuffer, _MotionQuantity);
     std::thread event_thread(&Event::start, event_task);
     event_thread.detach();
 

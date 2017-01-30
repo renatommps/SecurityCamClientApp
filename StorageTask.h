@@ -12,7 +12,7 @@
 #include <thread>           // std::thread
 #include <opencv2/opencv.hpp>
 #include "MessageDealer.h"
-#include "BufferManager.h"
+#include "SharedFrameBuffer.h"
 #include "SynchronizationAndStatusDealer.h"
 
 class StorageTask {
