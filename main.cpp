@@ -170,12 +170,6 @@ bool setMacFile(std::string * c_name) {
     return client_id_set;
 }
 
-//void readInicialFrame(cv::VideoCapture * cap_device, cv::Mat * f, cv::Mat * pf, cv::Mat * ppf) {
-//    cap_device->read(*f);
-//    cv::resize(*f, *pf, DEFAULT_PROCESSED_FRAME_SIZE, 0, 0, CV_INTER_AREA);
-//    *ppf = pf->clone();
-//}
-
 void setFrameParameters(cv::Mat * f, int * f_width, int * f_height, int * pf_width, int * pf_height, int * max_mov_width,
         int * min_mov_width, int * min_horizontal_mov_dist, int * min_vertical_mov_dist, int * pf_border_width) {
     *f_width = f->cols;

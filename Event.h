@@ -21,7 +21,7 @@ public:
     
     std::string getFormatedTime(std::time_t raw_time, std::string format);
     void addFrameToBuffer(Frame frame);
-    
+    void finishEvent();
     
 //    std::string getId();
 //    std::string getVideoPath();
@@ -56,6 +56,7 @@ private:
     long _verticalDirection; // valores negativos representam direção média de movimentos para baixo, e positivos para cima;
     double _motionQuantity; // quantia acumulada de movimentação detectada do evento
     cv::Size _frameSize;
+    bool _eventActive;
     
 //    EventStorageTask _eventStorageTask;
 //    EventTransferTask _eventTransferTask;

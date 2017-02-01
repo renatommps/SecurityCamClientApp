@@ -9,9 +9,10 @@ Event::Event(SharedFrameBuffer frameBuffer, std::list<Frame> *_frameBuffer, doub
     _horizontalDirection = 0;
     _verticalDirection = 0;
     _motionQuantity = 0;
+    _eventActive = true;
 
     _sharedFrameBuffer.assign(frameBuffer);
-    
+
     MessageDealer::showMessage("Evento instanciado em " + getFormatedTime(_startTime, "%H:%M:%S"));
     MessageDealer::showMessage("Tamaho do buffer de frames do evento: " + std::to_string(_frameBuffer->size()));
     MessageDealer::showMessage("Tamaho de _framesQuantity do evento: " + std::to_string(_framesQuantity));
@@ -37,8 +38,23 @@ Event::~Event() {
 }
 
 void Event::start() {
+
+    while (_eventActive) {
+        
+        
+        
+    }
+
+    while (!_sharedFrameBuffer.empty()){
+        
+    }
+    
     //    EventStorageTask _eventStorageTask;
     //    EventTransferTask _eventTransferTask;
+}
+
+void Event::finishEvent() {
+    _eventActive = false;
 }
 
 std::string Event::getFormatedTime(std::time_t raw_time, std::string format) {
@@ -51,7 +67,7 @@ std::string Event::getFormatedTime(std::time_t raw_time, std::string format) {
 }
 
 void Event::addFrameToBuffer(Frame frame) {
-    _frameBuffer.push_back(frame);
+    _sharedFrameBuffer.pushBackFrame(frame);
     _framesQuantity++;
 }
 

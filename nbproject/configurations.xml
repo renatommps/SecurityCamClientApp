@@ -9,7 +9,7 @@
       <itemPath>Frame.h</itemPath>
       <itemPath>MessageDealer.h</itemPath>
       <itemPath>ProcessingTask.h</itemPath>
-      <itemPath>SharedBuffer.h</itemPath>
+      <itemPath>SharedFrameBuffer.h</itemPath>
       <itemPath>StorageTask.h</itemPath>
       <itemPath>SynchronizationAndStatusDealer.h</itemPath>
       <itemPath>zhelpers.hpp</itemPath>
@@ -119,9 +119,9 @@
       </item>
       <item path="ProcessingTask.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="SharedBuffer.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="SharedFrameBuffer.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="SharedFrameBuffer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="StorageTask.cpp" ex="false" tool="1" flavor2="0">
       </item>
@@ -176,9 +176,9 @@
       </item>
       <item path="ProcessingTask.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="SharedBuffer.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="SharedFrameBuffer.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="SharedFrameBuffer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="StorageTask.cpp" ex="false" tool="1" flavor2="0">
       </item>

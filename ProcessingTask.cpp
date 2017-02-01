@@ -50,6 +50,9 @@ void ProcessingTask::start() {
             /* lê o próximo frame do dispositivo de vídeo */
             _cap.read(_originalFrame);
 
+            /* adiciona o frame original no buffer de frames */
+            _sharedFrameBuffer->pushBackFrame(Frame(_streamingFrame, std::time(nullptr)));
+
             /* atualiza o Frame de streaming (mudar depois, esta ERRADO, tem de ser em outra thread !!!!!!!!!!!!!) */
             _streamingFrame = Frame(_streamingFrame, std::time(nullptr));
 
@@ -96,16 +99,13 @@ void ProcessingTask::start() {
                     /* zera o número de frames consecutivos com movimento válido
                      * (válido para que seja considerável como um evento) */
                     _numberOfConsecutiveMotionSequence = 0;
-
-                    /* adiciona o frame original no buffer de frames */
-                    _frameBuffer->push_back(_originalFrame);
-                    
-                    /* se o buffer de frames é maior que o tamanho permitido,
-                      então remove o primeiro elemento */
-                    if (_frameBuffer->size() > 10) {
-                        _frameBuffer->pop_front();
-                    }
                 }
+            }
+
+            /* se não existe evento, e o buffer de frames é maior que o tamanho
+             * máximo permitido, então remove o primeiro elemento */
+            if (!_event_running && _frameBuffer->size() > 10) {
+                _sharedFrameBuffer->popFrontFrame();
             }
 
             /* mostra os resultados da detecção de movimentos */
@@ -149,7 +149,7 @@ void ProcessingTask::startEvent() {
     followDetectedMotion();
 
     _sharedFrameBuffer = new SharedFrameBuffer();
-    
+
     event_task = new Event(_sharedFrameBuffer, _frameBuffer, _MotionQuantity);
     std::thread event_thread(&Event::start, event_task);
     event_thread.detach();
