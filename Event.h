@@ -14,14 +14,15 @@ const int VIDEO_WRITER_CODEC = CV_FOURCC('M', 'J', 'P', 'G'); // {'F','M','P','4
 
 class Event {
 public:
-    Event(SharedFrameBuffer frameBuffer, std::list<Frame> *_frameBuffer, double initialMotionQuantity);
+    Event(SharedFrameBuffer frameBuffer, std::list<Frame> *_frameBuffer);
     Event(const Event& orig);
     virtual ~Event();
     void start();
     
     std::string getFormatedTime(std::time_t raw_time, std::string format);
     void addFrameToBuffer(Frame frame);
-    void finishEvent();
+    void incrementMotionQuantity(double quantity);
+    void finishEvent(int horizontalDirection, int verticalDirection);
     
 //    std::string getId();
 //    std::string getVideoPath();

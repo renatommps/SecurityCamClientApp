@@ -77,6 +77,8 @@ public:
     virtual ~ProcessingTask();
     void start();
 private:
+    bool _showMotion;
+    
     bool _executionError;
     int _capDeviceIndex;
 
@@ -116,12 +118,14 @@ private:
     cv::Rect _motion_rectangle;
     cv::Scalar _mean;
     cv::Scalar _color;      // amarelo, cor do retangulo que delimita detecções
-    double _MotionQuantity; // quantia de movimentação detectada
     
     std::list<Frame> *_frameBuffer;
     Frame _streamingFrame;
     
     bool _event_running;
+    double _eventMotionQuantity;
+    int _eventHorizontalDirection;
+    int _eventVerticalDirection;
     std::time_t _eventStartTime;
     std::time_t _lastMotionDetectedTime;
     SharedFrameBuffer * _sharedFrameBuffer;

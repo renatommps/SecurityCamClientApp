@@ -1,7 +1,7 @@
 #include "Event.h"
 #include "Frame.h"
 
-Event::Event(SharedFrameBuffer frameBuffer, std::list<Frame> *_frameBuffer, double initialMotionQuantity) {
+Event::Event(SharedFrameBuffer frameBuffer, std::list<Frame> *_frameBuffer) {
     _startTime = _frameBuffer->front().getTime();
     _id = getFormatedTime(_startTime, "%Y-%m-%d-%H-%M-%S");
     _frameSize = _frameBuffer->front().getCvMat().size;
@@ -53,7 +53,7 @@ void Event::start() {
     //    EventTransferTask _eventTransferTask;
 }
 
-void Event::finishEvent() {
+void Event::finishEvent(int horizontalDirection, int verticalDirection) {
     _eventActive = false;
 }
 
@@ -69,6 +69,10 @@ std::string Event::getFormatedTime(std::time_t raw_time, std::string format) {
 void Event::addFrameToBuffer(Frame frame) {
     _sharedFrameBuffer.pushBackFrame(frame);
     _framesQuantity++;
+}
+
+void Event::incrementMotionQuantity(double quantity) {
+    _motionQuantity += quantity;
 }
 
 //std::string Event::getId() {

@@ -17,6 +17,8 @@ ProcessingTask::ProcessingTask() {
 
     _event_running = false;
     _executionError = false;
+
+    _showMotion = true;
 }
 
 ProcessingTask::~ProcessingTask() {
@@ -146,11 +148,15 @@ void ProcessingTask::startEvent() {
     _eventStartTime = time_now;
     _lastMotionDetectedTime = time_now;
 
+    _eventMotionQuantity = 0;
+    _eventHorizontalDirection = 0;
+    _eventVerticalDirection = 0;
+
     followDetectedMotion();
 
     _sharedFrameBuffer = new SharedFrameBuffer();
 
-    event_task = new Event(_sharedFrameBuffer, _frameBuffer, _MotionQuantity);
+    event_task = new Event(_sharedFrameBuffer, _frameBuffer);
     std::thread event_thread(&Event::start, event_task);
     event_thread.detach();
 
@@ -162,56 +168,42 @@ void ProcessingTask::startEvent() {
 void ProcessingTask::manageEvent() {
     std::time_t time_now = std::time(nullptr);
 
+    event_task->addFrameToBuffer();
+
     if (_thereIsValidMotion) {
         _lastMotionDetectedTime = time_now;
         followDetectedMotion();
+    }
 
-        if (_event_running) {
-            event_task->addFrameToBuffer();
-        }
-    } else {
-        std::time_t event_duration = time_now - _eventStartTime;
-        std::time_t time_without_motion = time_now - _lastMotionDetectedTime;
+    std::time_t event_duration = time_now - _eventStartTime;
+    std::time_t time_without_motion = time_now - _lastMotionDetectedTime;
 
-        bool no_motion_period = time_without_motion > EVENT_MAX_INACTIVITY_TIME;
-        bool event_max_time_reached = event_duration > EVENT_MAX_DURATION;
+    bool no_motion_period = time_without_motion > EVENT_MAX_INACTIVITY_TIME;
+    bool event_max_time_reached = event_duration > EVENT_MAX_DURATION;
 
-        if (no_motion_period || event_max_time_reached) {
-            if (_event) {
-                double duration = difftime(time_now, _event->getStartTime());
-                _event->setDuration(duration);
-            }
-            _frameBuffer->pushBackFrame(_originalFrame, EVENT_END);
-            finalizeEvent();
-            MessageDealer::showMessage("Evento finalizado em " + getFormatedTime(time_now, "%H:%M:%S"));
-        } else {
-            _eventFramesCounter++;
-            _frameBuffer->pushBackFrame(_originalFrame, INSIDE_EVENT);
-            if (_event) {
-                _event->incrementFramesQuantity();
-            }
-        }
+    if (no_motion_period || event_max_time_reached) {
+        finalizeEvent();
+    }
+
+    if (event_max_time_reached) {
+        startEvent();
     }
 }
 
 void ProcessingTask::finalizeEvent() {
-    if (_event) {
-        //MessageDealer::showMessage("Dados do evento:" + _event->toString());
+    _event_running = false;
+    event_task->finishEvent(_eventHorizontalDirection, _eventVerticalDirection);
+    event_task = nullptr;
+    
+    MessageDealer::showMessage("Evento finalizado em " + getFormatedTime(time_now, "%H:%M:%S"));
 
-        _eventsList->push_front(_event);
-        //delete _event;
-        _event = nullptr;
-    }
-
-    std::list<Event*>::iterator it = _eventsList->begin();
-    while (it != _eventsList->end()) {
-        Event *my_event = dynamic_cast<Event*> (*it);
-        _eventsList->erase(it++); // alternatively, i = items.erase(i);
-        MessageDealer::showMessage("Dados do evento]:" + my_event->toString());
-        delete my_event;
-    }
-
-    _synchAndStatusDealer->setMotionEventStatus(false);
+//    std::list<Event*>::iterator it = _eventsList->begin();
+//    while (it != _eventsList->end()) {
+//        Event *my_event = dynamic_cast<Event*> (*it);
+//        _eventsList->erase(it++); // alternatively, i = items.erase(i);
+//        MessageDealer::showMessage("Dados do evento]:" + my_event->toString());
+//        delete my_event;
+//    }
 }
 
 void ProcessingTask::followDetectedMotion() {
@@ -362,7 +354,7 @@ void ProcessingTask::detectMotion() {
     /* se não tem uma quantidade muito grande de mudanças (menor que _maxDeviation),
      * então a movimentação (motion) é real (evita falsos positivos por causa de ruidos) */
     if (stddev[0] < _maxDeviation) {
-        _numberOfChanges = 0;
+        double numberOfChanges = 0;
         _motion_min_x = _motion.cols;
         _motion_min_y = _motion.rows;
         _motion_max_x = 0;
@@ -376,7 +368,7 @@ void ProcessingTask::detectMotion() {
                  * se sim, isso significa que o pixel é diferente na seguência
                  * de imagens (_prevFrame, _currentFrame, _nextFrame) */
                 if (static_cast<int> (_motion.at<uchar>(j, i)) == 255) {
-                    _numberOfChanges++;
+                    numberOfChanges++;
                     if (_motion_min_x > i) _motion_min_x = i;
                     if (_motion_max_x < i) _motion_max_x = i;
                     if (_motion_min_y > j) _motion_min_y = j;
@@ -385,12 +377,11 @@ void ProcessingTask::detectMotion() {
             }
         }
 
-        if (_numberOfChanges >= _minMotionValue) {
+        if (numberOfChanges >= _minMotionValue) {
             _thereIsValidMotion = true;
             if (_event_running) {
-                _event->incrementMotionQuantity(_numberOfChanges);
+                _eventMotionQuantity += numberOfChanges;
             }
-
         } else {
             _thereIsValidMotion = false;
         }
@@ -431,25 +422,25 @@ void ProcessingTask::detectMotion() {
 void ProcessingTask::defineMotionDirection() {
     if (_previousMotionCenter.x < _motionCenter.x) {
         _horizontalDirection = right;
-        if (_event) {
-            _event->incrementHorizontalDirection(1);
+        if (_event_running) {
+            _eventHorizontalDirection++;
         }
     } else {
         _horizontalDirection = left;
-        if (_event) {
-            _event->incrementHorizontalDirection(-1);
+        if (_event_running) {
+            _eventHorizontalDirection--;
         }
     }
 
     if (_previousMotionCenter.y < _motionCenter.y) {
         _verticalDirection = up;
-        if (_event) {
-            _event->incrementVerticalDirection(1);
+        if (_event_running) {
+            _eventVerticalDirection++;
         }
     } else {
         _verticalDirection = down;
-        if (_event) {
-            _event->incrementVerticalDirection(-1);
+        if (_event_running) {
+            _eventVerticalDirection--;
         }
     }
 }
