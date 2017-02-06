@@ -1,7 +1,7 @@
 #include "Event.h"
 #include "Frame.h"
 
-Event::Event(SharedFrameBuffer frameBuffer, std::list<Frame> *_frameBuffer) {
+Event::Event(std::list<Frame> *frameBuffer) {
     _startTime = _frameBuffer->front().getTime();
     _id = getFormatedTime(_startTime, "%Y-%m-%d-%H-%M-%S");
     _frameSize = _frameBuffer->front().getCvMat().size;
@@ -11,11 +11,12 @@ Event::Event(SharedFrameBuffer frameBuffer, std::list<Frame> *_frameBuffer) {
     _motionQuantity = 0;
     _eventActive = true;
 
-    _sharedFrameBuffer.assign(frameBuffer);
+    _frameBuffer->assign(frameBuffer);
 
-    MessageDealer::showMessage("Evento instanciado em " + getFormatedTime(_startTime, "%H:%M:%S"));
-    MessageDealer::showMessage("Tamaho do buffer de frames do evento: " + std::to_string(_frameBuffer->size()));
-    MessageDealer::showMessage("Tamaho de _framesQuantity do evento: " + std::to_string(_framesQuantity));
+    MessageDealer::showMessage("Event message: Evento instanciado em " + getFormatedTime(_startTime, "%H:%M:%S"));
+    MessageDealer::showMessage("Event message: Tamaho do buffer de frames do evento: " + std::to_string(_frameBuffer->size()));
+    MessageDealer::showMessage("Event message: Tamaho de _framesQuantity do evento: " + std::to_string(_framesQuantity));
+    MessageDealer::showMessage("Event message: Tamaho do *frameBuffer passado para o evento: " + std::to_string(frameBuffer->size()));
 }
 
 Event::Event(const Event& orig) {
@@ -40,20 +41,24 @@ Event::~Event() {
 void Event::start() {
 
     while (_eventActive) {
-        
-        
-        
+
+
+
     }
 
-    while (!_sharedFrameBuffer.empty()){
-        
+    while (!_sharedFrameBuffer.empty()) {
+
     }
-    
+
     //    EventStorageTask _eventStorageTask;
     //    EventTransferTask _eventTransferTask;
 }
 
-void Event::finishEvent(int horizontalDirection, int verticalDirection) {
+void Event::finishEvent(int horizontalDirection, int verticalDirection, double motionQuantity) {
+    _horizontalDirection = horizontalDirection;
+    _verticalDirection = verticalDirection;
+    _motionQuantity = motionQuantity;
+    
     _eventActive = false;
 }
 

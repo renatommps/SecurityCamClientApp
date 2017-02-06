@@ -29,6 +29,8 @@ const short int DEFAULT_PROCESSED_FRAME_HORIZONTAL_RADIUS = DEFAULT_PROCESSED_FR
 const short int DEFAULT_PROCESSED_FRAME_VERTICAL_RADIUS = DEFAULT_PROCESSED_FRAME_SIZE.height / 2;
 const cv::Point DEFAULT_PROCESSED_FRAME_CENTER(DEFAULT_PROCESSED_FRAME_HORIZONTAL_RADIUS, DEFAULT_PROCESSED_FRAME_VERTICAL_RADIUS);
 
+const int MAX_FRAME_BUFFER_SIZE = 10; // tamanho máximo do buffer de Frames;
+
 const int EVENT_MAX_INACTIVITY_TIME = 10; // tempo em segundos
 const int EVENT_MAX_DURATION = 600; // tempo em segundos (10 minutos)
 
@@ -128,7 +130,7 @@ private:
     int _eventVerticalDirection;
     std::time_t _eventStartTime;
     std::time_t _lastMotionDetectedTime;
-    SharedFrameBuffer * _sharedFrameBuffer;
+//    SharedFrameBuffer * _sharedFrameBuffer;
     
     bool _servoHorizontalMovementEnable;
     bool _servoVerticalMovementEnable;

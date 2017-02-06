@@ -52,9 +52,17 @@ void ProcessingTask::start() {
             /* lê o próximo frame do dispositivo de vídeo */
             _cap.read(_originalFrame);
 
-            /* adiciona o frame original no buffer de frames */
-            _sharedFrameBuffer->pushBackFrame(Frame(_streamingFrame, std::time(nullptr)));
-
+            if (_event_running) {
+                /* adiciona o frame original no buffer de frames */
+                event_task->addFrameToBuffer(Frame(_streamingFrame, std::time(nullptr)));
+            } else {
+                /* adiciona o frame original no buffer de frames */
+                _frameBuffer->push_back(Frame(_streamingFrame, std::time(nullptr)));
+                if(_frameBuffer->size() > MAX_FRAME_BUFFER_SIZE){
+                    _frameBuffer->pop_front();
+                }
+            }
+            
             /* atualiza o Frame de streaming (mudar depois, esta ERRADO, tem de ser em outra thread !!!!!!!!!!!!!) */
             _streamingFrame = Frame(_streamingFrame, std::time(nullptr));
 
@@ -154,15 +162,17 @@ void ProcessingTask::startEvent() {
 
     followDetectedMotion();
 
-    _sharedFrameBuffer = new SharedFrameBuffer();
-
-    event_task = new Event(_sharedFrameBuffer, _frameBuffer);
+    event_task = new Event(_frameBuffer);
     std::thread event_thread(&Event::start, event_task);
     event_thread.detach();
 
     _event_running = true;
 
-    MessageDealer::showMessage("Processing thread created event em detached it.");
+    /* zera o buffer de Frames */
+    _frameBuffer->clear();
+    
+    MessageDealer::showMessage("ProcessingTask message: Processing thread created event and detached it.");
+    MessageDealer::showMessage("ProcessingTask message: Tamaho do *_frameBuffer: " + std::to_string(_frameBuffer->size()));
 }
 
 void ProcessingTask::manageEvent() {
@@ -183,6 +193,7 @@ void ProcessingTask::manageEvent() {
 
     if (no_motion_period || event_max_time_reached) {
         finalizeEvent();
+        MessageDealer::showMessage("Evento finalizado em " + getFormatedTime(time_now, "%H:%M:%S"));
     }
 
     if (event_max_time_reached) {
@@ -192,18 +203,16 @@ void ProcessingTask::manageEvent() {
 
 void ProcessingTask::finalizeEvent() {
     _event_running = false;
-    event_task->finishEvent(_eventHorizontalDirection, _eventVerticalDirection);
+    event_task->finishEvent(_eventHorizontalDirection, _eventVerticalDirection, _eventMotionQuantity);
     event_task = nullptr;
-    
-    MessageDealer::showMessage("Evento finalizado em " + getFormatedTime(time_now, "%H:%M:%S"));
 
-//    std::list<Event*>::iterator it = _eventsList->begin();
-//    while (it != _eventsList->end()) {
-//        Event *my_event = dynamic_cast<Event*> (*it);
-//        _eventsList->erase(it++); // alternatively, i = items.erase(i);
-//        MessageDealer::showMessage("Dados do evento]:" + my_event->toString());
-//        delete my_event;
-//    }
+    //    std::list<Event*>::iterator it = _eventsList->begin();
+    //    while (it != _eventsList->end()) {
+    //        Event *my_event = dynamic_cast<Event*> (*it);
+    //        _eventsList->erase(it++); // alternatively, i = items.erase(i);
+    //        MessageDealer::showMessage("Dados do evento]:" + my_event->toString());
+    //        delete my_event;
+    //    }
 }
 
 void ProcessingTask::followDetectedMotion() {
