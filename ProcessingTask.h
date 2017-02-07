@@ -9,6 +9,7 @@
 #include <dirent.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <thread>                       // std::thread
 #include <list>                         // std::list
 #include <string>                       // std::string
 #include <ctime>                        // std::time_t

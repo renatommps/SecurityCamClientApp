@@ -40,6 +40,15 @@ Event::~Event() {
 
 void Event::start() {
 
+    EventStorageTask _eventStorageTask();
+    EventSenderTask _eventSenderTask();
+
+    std::thread _eventStorageTask(&EventStorageTask::start, &_eventStorageTask);
+    std::thread _eventSenderTask(&EventSenderTask::start, &_eventSenderTask);
+
+    _eventStorageTask.detach();
+    _eventSenderTask.detach();
+    
     while (_eventActive) {
 
 
@@ -58,7 +67,7 @@ void Event::finishEvent(int horizontalDirection, int verticalDirection, double m
     _horizontalDirection = horizontalDirection;
     _verticalDirection = verticalDirection;
     _motionQuantity = motionQuantity;
-    
+
     _eventActive = false;
 }
 
