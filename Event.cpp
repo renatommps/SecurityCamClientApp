@@ -2,21 +2,21 @@
 #include "Frame.h"
 
 Event::Event(std::list<Frame> *frameBuffer) {
-    _startTime = _frameBuffer->front().getTime();
+    _startTime = frameBuffer->front().getTime();
     _id = getFormatedTime(_startTime, "%Y-%m-%d-%H-%M-%S");
-    _frameSize = _frameBuffer->front().getCvMat().size;
-    _framesQuantity = _frameBuffer->size();
+    _frameSize = frameBuffer->front().getCvMat().size;
+    _framesQuantity = frameBuffer->size();
     _horizontalDirection = 0;
     _verticalDirection = 0;
     _motionQuantity = 0;
     _eventActive = true;
 
-    _frameBuffer->assign(frameBuffer);
+    _storageFrameBuffer.assign(frameBuffer);
+    _senderFrameBuffer.assign(frameBuffer);
 
     MessageDealer::showMessage("Event message: Evento instanciado em " + getFormatedTime(_startTime, "%H:%M:%S"));
-    MessageDealer::showMessage("Event message: Tamaho do buffer de frames do evento: " + std::to_string(_frameBuffer->size()));
-    MessageDealer::showMessage("Event message: Tamaho de _framesQuantity do evento: " + std::to_string(_framesQuantity));
-    MessageDealer::showMessage("Event message: Tamaho do *frameBuffer passado para o evento: " + std::to_string(frameBuffer->size()));
+    MessageDealer::showMessage("Event message: Quantidade de frames passados: " + std::to_string(_framesQuantity));
+    MessageDealer::showMessage("Event message: Tamaho do buffer passado para o evento: " + std::to_string(frameBuffer->size()));
 }
 
 Event::Event(const Event& orig) {
@@ -40,27 +40,22 @@ Event::~Event() {
 
 void Event::start() {
 
-    EventStorageTask _eventStorageTask();
-    EventSenderTask _eventSenderTask();
+    EventStorageTask eventStorageTask(&_storageFrameBuffer, &_eventActive);
+    EventSenderTask eventSenderTask(&_senderFrameBuffer, &_eventActive);
 
-    std::thread _eventStorageTask(&EventStorageTask::start, &_eventStorageTask);
-    std::thread _eventSenderTask(&EventSenderTask::start, &_eventSenderTask);
+    std::thread _eventStorageTask(&EventStorageTask::start, &eventStorageTask);
+    std::thread _eventSenderTask(&EventSenderTask::start, &eventSenderTask);
 
-    _eventStorageTask.detach();
-    _eventSenderTask.detach();
-    
+    _eventStorageTask.join();
+    _eventSenderTask.join();
+
     while (_eventActive) {
 
-
-
     }
 
-    while (!_sharedFrameBuffer.empty()) {
+    while (!_storageFrameBuffer.empty() && !_senderFrameBuffer.empty()) {
 
     }
-
-    //    EventStorageTask _eventStorageTask;
-    //    EventTransferTask _eventTransferTask;
 }
 
 void Event::finishEvent(int horizontalDirection, int verticalDirection, double motionQuantity) {
@@ -81,7 +76,9 @@ std::string Event::getFormatedTime(std::time_t raw_time, std::string format) {
 }
 
 void Event::addFrameToBuffer(Frame frame) {
-    _sharedFrameBuffer.pushBackFrame(frame);
+    _storageFrameBuffer.pushBackFrame(frame);
+    _senderFrameBuffer.pushBackFrame(frame);
+    
     _framesQuantity++;
 }
 

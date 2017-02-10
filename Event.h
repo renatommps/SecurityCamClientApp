@@ -10,6 +10,8 @@
 #include <string>               // std::string
 #include "MessageDealer.h"
 #include "SharedFrameBuffer.h"
+#include "EventStorageTask.h"
+#include "EventSenderTask.h"
 
 const int VIDEO_WRITER_CODEC = CV_FOURCC('M', 'J', 'P', 'G'); // {'F','M','P','4'}; // codec utilizado pelo VideoWriter
 
@@ -60,11 +62,11 @@ private:
     cv::Size _frameSize;
     bool _eventActive;
 
-    //    EventStorageTask _eventStorageTask;
-    //    EventTransferTask _eventTransferTask;
+    SharedFrameBuffer _storageFrameBuffer;
+    SharedFrameBuffer _senderFrameBuffer;
 
-    std::list<Frame> _frameBuffer;
-    SharedFrameBuffer _sharedFrameBuffer;
+    //    std::list<Frame> _frameBuffer;
+    //    SharedFrameBuffer _sharedFrameBuffer;
 };
 
 #endif /* EVENT_H */

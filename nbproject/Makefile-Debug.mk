@@ -37,6 +37,8 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 OBJECTFILES= \
 	${OBJECTDIR}/ClientTask.o \
 	${OBJECTDIR}/Event.o \
+	${OBJECTDIR}/EventSenderTask.o \
+	${OBJECTDIR}/EventStorageTask.o \
 	${OBJECTDIR}/Frame.o \
 	${OBJECTDIR}/MessageDealer.o \
 	${OBJECTDIR}/ProcessingTask.o \
@@ -79,6 +81,16 @@ ${OBJECTDIR}/Event.o: Event.cpp
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.cc) -g -I/usr/local/include/opencv2 `pkg-config --cflags pthread-stubs`   -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Event.o Event.cpp
+
+${OBJECTDIR}/EventSenderTask.o: EventSenderTask.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -I/usr/local/include/opencv2 `pkg-config --cflags pthread-stubs`   -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/EventSenderTask.o EventSenderTask.cpp
+
+${OBJECTDIR}/EventStorageTask.o: EventStorageTask.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -I/usr/local/include/opencv2 `pkg-config --cflags pthread-stubs`   -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/EventStorageTask.o EventStorageTask.cpp
 
 ${OBJECTDIR}/Frame.o: Frame.cpp 
 	${MKDIR} -p ${OBJECTDIR}
