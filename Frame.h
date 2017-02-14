@@ -15,6 +15,7 @@
 #define FRAME_H
 
 #include "opencv2/highgui/highgui.hpp"
+#include "opencv2/opencv.hpp"
 #include <ctime>            // std::time_t
 #include <time.h>           // time_t, time, ctime
 
@@ -23,7 +24,8 @@ public:
     Frame(cv::Mat frame, std::time_t time);
     Frame(const Frame& orig);
     virtual ~Frame();
-    
+    void write(cv::FileStorage& fs) const; // Write serialization for this class
+    void read(const cv::FileNode& node); // Read serialization for this class
     cv::Mat getCvMat();
     std::time_t getTime();
 private:

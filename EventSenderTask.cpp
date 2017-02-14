@@ -1,7 +1,7 @@
 #include "EventSenderTask.h"
 
 EventSenderTask::EventSenderTask(SharedFrameBuffer *frameBuffer, bool *eventActive) {
-    _frameBuffer->assign(frameBuffer);
+   _frameBuffer->assign(frameBuffer);
     _eventActive = eventActive;
 }
 

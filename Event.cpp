@@ -4,7 +4,10 @@
 Event::Event(std::list<Frame> *frameBuffer) {
     _startTime = frameBuffer->front().getTime();
     _id = getFormatedTime(_startTime, "%Y-%m-%d-%H-%M-%S");
-    _frameSize = frameBuffer->front().getCvMat().size;
+    
+    _frameSize.height = frameBuffer->front().getCvMat().cols;
+    _frameSize.width = frameBuffer->front().getCvMat().rows;
+//    _frameSize(frameBuffer->front().getCvMat().cols, frameBuffer->front().getCvMat().rows);
     _framesQuantity = frameBuffer->size();
     _horizontalDirection = 0;
     _verticalDirection = 0;

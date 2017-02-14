@@ -115,7 +115,7 @@ void ProcessingTask::start() {
             /* se não existe evento, e o buffer de frames é maior que o tamanho
              * máximo permitido, então remove o primeiro elemento */
             if (!_event_running && _frameBuffer->size() > 10) {
-                _sharedFrameBuffer->popFrontFrame();
+                _frameBuffer->pop_front();
             }
 
             /* mostra os resultados da detecção de movimentos */

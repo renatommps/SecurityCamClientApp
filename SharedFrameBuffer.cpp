@@ -9,13 +9,21 @@ SharedFrameBuffer::SharedFrameBuffer(const SharedFrameBuffer& orig) {
 SharedFrameBuffer::~SharedFrameBuffer() {
 }
 
-void SharedFrameBuffer::assign(std::list<Frame> * frameBuffer){
-    _frameBuffer.assign(frameBuffer);
+void SharedFrameBuffer::assign(std::list<Frame> * frameBuffer) {
+    if (!frameBuffer->empty()) {
+        _frameBuffer.assign(frameBuffer);
+    }
+}
+
+void SharedFrameBuffer::assign(SharedFrameBuffer * frameBuffer) {
+    if (!frameBuffer->empty()) {
+        _frameBuffer.assign(frameBuffer->getFrameBuffer());
+    }
 }
 
 void SharedFrameBuffer::pushBackFrame(Frame frame) {
     Frame f(frame);
-    
+
     _bufferMutex.lock();
     _frameBuffer.push_back(f);
     _bufferMutex.unlock();
@@ -44,6 +52,16 @@ Frame SharedFrameBuffer::getFrontFrame() {
     _bufferMutex.unlock();
 
     return frame;
+}
+
+std::list<Frame> SharedFrameBuffer::getFrameBuffer() {
+    std::list<Frame> frameBuffer;
+
+    _bufferMutex.lock();
+    frameBuffer.assign(_frameBuffer);
+    _bufferMutex.unlock();
+    
+    return frameBuffer;
 }
 
 bool SharedFrameBuffer::empty() {

@@ -4,7 +4,7 @@
 #include <fstream>              // std::fstream
 #include <fstream>              // std::ofstream
 #include <list>                 // std::list
-#include <unistd.h>             // std::usleep
+//#include <unistd.h>             // std::usleep
 #include <chrono>               // std::chrono::milliseconds
 #include <mutex>                // std::mutex, std::unique_lock
 #include <condition_variable>   // std::condition_variable
@@ -123,21 +123,21 @@ int main(int argc, char * argv[]) {
     return 0;
 }
 
-std::string getExecutionPath() {
-    std::string path = "";
-    int path_max = 1024;
-    char buff[path_max];
-    ssize_t len = readlink("/proc/self/exe", buff, sizeof ( buff) - 1);
-
-    if (len != -1) {
-        buff[len] = '\0';
-        size_t found;
-        std::string full_name = std::string(buff);
-        found = full_name.find_last_of("/\\");
-        path = full_name.substr(0, found);
-    }
-    return path;
-}
+//std::string getExecutionPath() {
+//    std::string path = "";
+//    int path_max = 1024;
+//    char buff[path_max];
+//    ssize_t len = readlink("/proc/self/exe", buff, sizeof ( buff) - 1);
+//
+//    if (len != -1) {
+//        buff[len] = '\0';
+//        size_t found;
+//        std::string full_name = std::string(buff);
+//        found = full_name.find_last_of("/\\");
+//        path = full_name.substr(0, found);
+//    }
+//    return path;
+//}
 
 bool createDirectoryTree(std::string path) {
     size_t position = 0;

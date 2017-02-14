@@ -12,8 +12,10 @@ public:
     virtual ~SharedFrameBuffer();
     void pushBackFrame(Frame frame);
     void assign(std::list<Frame> * frameBuffer);
+    void assign(SharedFrameBuffer * frameBuffer);
     Frame popFrontFrame();
     Frame getFrontFrame();
+    std::list<Frame> getFrameBuffer();
     bool empty();
     int size();
 private:
