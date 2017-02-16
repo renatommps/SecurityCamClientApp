@@ -19,12 +19,14 @@ void EventStorageTask::start() {
     while (_eventActive) {
         if (!_frameBuffer->empty()) {
             MessageDealer::showMessage(std::string("EventStorageTask message: ") + std::string("Frames to store: ") + std::to_string(_frameBuffer->size()));
-            Frame frame = _frameBuffer->getFrontFrame();
+            EventFrame frame = *_frameBuffer->getFrontFrame();
+            cv::Mat frame_mat = frame.getCvMat();
+            std::time_t frame_time = frame.getTime();
             try {
                 if (!file.isOpened()) {
                     file.open("test.xml", cv::FileStorage::APPEND);
                 }
-                file << "Frame" << frame;
+                file << "{" << "Frame" << frame_mat<< "Time" << asctime(localtime(&frame_time)) << "}";
             } catch (std::exception & e) {
                 MessageDealer::showErrorMessage(std::string("Error in EventStorageTask: ") + std::string(e.what()));
                 break;

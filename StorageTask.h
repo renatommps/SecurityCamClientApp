@@ -18,11 +18,11 @@
 class StorageTask {
 public:
     StorageTask();
-    StorageTask(BufferManager *buffer, SynchronizationAndStatusDealer *synchAndStatusDealer);
+//    StorageTask(BufferManager *buffer, SynchronizationAndStatusDealer *synchAndStatusDealer);
     virtual ~StorageTask();
     void start();
 private:
-    BufferManager *_frameBuffer;
+//    BufferManager *_frameBuffer;
     SynchronizationAndStatusDealer *_synchAndStatusDealer;
 };
 

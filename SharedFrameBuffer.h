@@ -3,23 +3,23 @@
 
 #include <list>     // std::list
 #include <mutex>    // std::mutex, std::unique_lock
-#include "Frame.h"
+#include "EventFrame.h"
 
 class SharedFrameBuffer {
 public:
     SharedFrameBuffer();
     SharedFrameBuffer(const SharedFrameBuffer& orig);
     virtual ~SharedFrameBuffer();
-    void pushBackFrame(Frame frame);
-    void assign(std::list<Frame> * frameBuffer);
+    void pushBackFrame(EventFrame * frame);
+    void assign(std::list<EventFrame> * frameBuffer);
     void assign(SharedFrameBuffer * frameBuffer);
-    Frame popFrontFrame();
-    Frame getFrontFrame();
-    std::list<Frame> getFrameBuffer();
+    EventFrame * popFrontFrame();
+    EventFrame * getFrontFrame();
+    std::list<EventFrame> getFrameBuffer();
     bool empty();
     int size();
 private:
-    std::list<Frame> _frameBuffer;
+    std::list<EventFrame> _frameBuffer;
     std::mutex _bufferMutex;
 };
 

@@ -1,13 +1,12 @@
 #include "Event.h"
-#include "Frame.h"
+#include "EventFrame.h"
 
-Event::Event(std::list<Frame> *frameBuffer) {
+Event::Event(std::list<EventFrame> *frameBuffer) {
     _startTime = frameBuffer->front().getTime();
     _id = getFormatedTime(_startTime, "%Y-%m-%d-%H-%M-%S");
     
     _frameSize.height = frameBuffer->front().getCvMat().cols;
     _frameSize.width = frameBuffer->front().getCvMat().rows;
-//    _frameSize(frameBuffer->front().getCvMat().cols, frameBuffer->front().getCvMat().rows);
     _framesQuantity = frameBuffer->size();
     _horizontalDirection = 0;
     _verticalDirection = 0;
@@ -78,9 +77,9 @@ std::string Event::getFormatedTime(std::time_t raw_time, std::string format) {
     return str_time;
 }
 
-void Event::addFrameToBuffer(Frame frame) {
-    _storageFrameBuffer.pushBackFrame(frame);
-    _senderFrameBuffer.pushBackFrame(frame);
+void Event::addFrameToBuffer(EventFrame frame) {
+    _storageFrameBuffer.pushBackFrame(&frame);
+    _senderFrameBuffer.pushBackFrame(&frame);
     
     _framesQuantity++;
 }

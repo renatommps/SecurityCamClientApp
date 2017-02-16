@@ -6,7 +6,7 @@
 //#include <unistd.h>             // std::usleep, readlink
 #include <string>
 #include "SharedFrameBuffer.h"
-#include "Frame.h"
+#include "EventFrame.h"
 #include "MessageDealer.h"
 
 class EventStorageTask {

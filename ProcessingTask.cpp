@@ -3,6 +3,11 @@
 #include "ProcessingTask.h"
 
 ProcessingTask::ProcessingTask() {
+    _eventsStoragePath = "";
+    _capDeviceIndex = 0;
+    _servoHorizontalMovementEnable = false;
+    _servoVerticalMovementEnable = false;
+    
     _kernelErode = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
     _minMotionValue = 5;
     _maxDeviation = 20;
@@ -14,6 +19,27 @@ ProcessingTask::ProcessingTask() {
 
     _servoHorizontalMovementEnable = false;
     _servoVerticalMovementEnable = false;
+
+    _event_running = false;
+    _executionError = false;
+
+    _showMotion = true;
+}
+
+ProcessingTask::ProcessingTask(std::string events_storage_path, int capDeviceIndex, bool horizontal_tracking, bool vertical_tracking) {
+    _eventsStoragePath = events_storage_path;
+    _capDeviceIndex = capDeviceIndex;
+    _servoHorizontalMovementEnable = horizontal_tracking;
+    _servoVerticalMovementEnable = vertical_tracking;
+       
+    _kernelErode = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
+    _minMotionValue = 5;
+    _maxDeviation = 20;
+    _numberOfChanges = 0;
+    _numberOfConsecutiveMotionSequence = 0;
+
+    cv::Scalar myColor(0, 255, 255);
+    _color = myColor;
 
     _event_running = false;
     _executionError = false;
@@ -52,19 +78,22 @@ void ProcessingTask::start() {
             /* lê o próximo frame do dispositivo de vídeo */
             _cap.read(_originalFrame);
 
+            /* cria um "Frame" com o frame de vídeo e data atual */
+            EventFrame frame(_originalFrame, std::time(nullptr));
+            
             if (_event_running) {
                 /* adiciona o frame original no buffer de frames */
-                event_task->addFrameToBuffer(Frame(_streamingFrame, std::time(nullptr)));
+                event_task->addFrameToBuffer(frame);
             } else {
                 /* adiciona o frame original no buffer de frames */
-                _frameBuffer->push_back(Frame(_streamingFrame, std::time(nullptr)));
+                _frameBuffer->push_back(frame);
                 if(_frameBuffer->size() > MAX_FRAME_BUFFER_SIZE){
                     _frameBuffer->pop_front();
                 }
             }
             
-            /* atualiza o Frame de streaming (mudar depois, esta ERRADO, tem de ser em outra thread !!!!!!!!!!!!!) */
-            _streamingFrame = Frame(_streamingFrame, std::time(nullptr));
+            /* atualiza o Frame de streaming (mudar depois, esta ERRADO, tem de ser em outra thread e tem de ser reduzido !!!!!!!!!!!!!) */
+            EventFrame streaming_frame = EventFrame(_originalFrame, std::time(nullptr));
 
             /* redimensiona o próximo frame usado para processamento */
             cv::resize(_originalFrame, _nextFrame, DEFAULT_PROCESSED_FRAME_SIZE, 0, 0, CV_INTER_AREA);
@@ -177,8 +206,6 @@ void ProcessingTask::startEvent() {
 
 void ProcessingTask::manageEvent() {
     std::time_t time_now = std::time(nullptr);
-
-    event_task->addFrameToBuffer();
 
     if (_thereIsValidMotion) {
         _lastMotionDetectedTime = time_now;

@@ -6,9 +6,9 @@
                    projectFiles="true">
       <itemPath>ClientTask.h</itemPath>
       <itemPath>Event.h</itemPath>
+      <itemPath>EventFrame.h</itemPath>
       <itemPath>EventSenderTask.h</itemPath>
       <itemPath>EventStorageTask.h</itemPath>
-      <itemPath>Frame.h</itemPath>
       <itemPath>MessageDealer.h</itemPath>
       <itemPath>ProcessingTask.h</itemPath>
       <itemPath>SharedFrameBuffer.h</itemPath>
@@ -21,9 +21,9 @@
                    projectFiles="true">
       <itemPath>ClientTask.cpp</itemPath>
       <itemPath>Event.cpp</itemPath>
+      <itemPath>EventFrame.cpp</itemPath>
       <itemPath>EventSenderTask.cpp</itemPath>
       <itemPath>EventStorageTask.cpp</itemPath>
-      <itemPath>Frame.cpp</itemPath>
       <itemPath>MessageDealer.cpp</itemPath>
       <itemPath>ProcessingTask.cpp</itemPath>
       <itemPath>SharedFrameBuffer.cpp</itemPath>
@@ -111,6 +111,10 @@
       </item>
       <item path="Event.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="EventFrame.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="EventFrame.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="EventSenderTask.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="EventSenderTask.h" ex="false" tool="3" flavor2="0">
@@ -118,10 +122,6 @@
       <item path="EventStorageTask.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="EventStorageTask.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="Frame.cpp" ex="false" tool="1" flavor2="0">
-      </item>
-      <item path="Frame.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="MessageDealer.cpp" ex="false" tool="1" flavor2="0">
       </item>
@@ -176,6 +176,10 @@
       </item>
       <item path="Event.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="EventFrame.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="EventFrame.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="EventSenderTask.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="EventSenderTask.h" ex="false" tool="3" flavor2="0">
@@ -183,10 +187,6 @@
       <item path="EventStorageTask.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="EventStorageTask.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="Frame.cpp" ex="false" tool="1" flavor2="0">
-      </item>
-      <item path="Frame.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="MessageDealer.cpp" ex="false" tool="1" flavor2="0">
       </item>

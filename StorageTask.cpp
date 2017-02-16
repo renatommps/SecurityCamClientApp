@@ -10,9 +10,9 @@
 StorageTask::StorageTask() {
 }
 
-StorageTask::StorageTask(BufferManager *buffer, SynchronizationAndStatusDealer *synchAndStatusDealer) :
-_frameBuffer(buffer), _synchAndStatusDealer(synchAndStatusDealer) {
-} // constructor
+//StorageTask::StorageTask(BufferManager *buffer, SynchronizationAndStatusDealer *synchAndStatusDealer) :
+//_frameBuffer(buffer), _synchAndStatusDealer(synchAndStatusDealer) {
+//} // constructor
 
 StorageTask::~StorageTask() {
 }

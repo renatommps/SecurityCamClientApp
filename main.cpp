@@ -4,34 +4,34 @@
 #include <fstream>              // std::fstream
 #include <fstream>              // std::ofstream
 #include <list>                 // std::list
-//#include <unistd.h>             // std::usleep
 #include <chrono>               // std::chrono::milliseconds
 #include <mutex>                // std::mutex, std::unique_lock
+#include <unistd.h>             // std::usleep, readlink
 #include <condition_variable>   // std::condition_variable
 #include <opencv2/opencv.hpp>
-#include <zmq.hpp>
+//#include <zmq.hpp>
 
-#include "zhelpers.hpp"
+//#include "zhelpers.hpp"
 #include "MessageDealer.h"
 #include "ProcessingTask.h"
-#include "StorageTask.h"
-#include "ClientTask.h"
-#include "Event.h"
-#include "Frame.h"
+//#include "StorageTask.h"
+//#include "ClientTask.h"
+//#include "Event.h"
+//#include "Frame.h"
 
 std::string getExecutionPath();
 bool createDirectoryTree(std::string path);
 bool createDirectory(std::string sub_path);
 bool setMacFile(std::string * c_name);
-void setFrameParameters(cv::Mat * f, int * f_width, int * f_height, int * pf_width, int * pf_height, int * max_mov_width, int * min_mov_width,
-        int * min_horizontal_mov_dist, int * min_vertical_mov_dist, int * pf_border_width);
+//void setFrameParameters(cv::Mat * f, int * f_width, int * f_height, int * pf_width, int * pf_height, int * max_mov_width, int * min_mov_width,
+//        int * min_horizontal_mov_dist, int * min_vertical_mov_dist, int * pf_border_width);
 
 cv::VideoCapture _cap;
 cv::Mat _frame;
 cv::Mat _processedFrame;
 cv::Mat _clientFrame;
 cv::Mat _LastProcessedFrame;
-std::list<Frame> frame_buffer;
+std::list<EventFrame> frame_buffer;
 std::list<Event*> _eventsList;
 
 int _frameWidth;
@@ -123,21 +123,21 @@ int main(int argc, char * argv[]) {
     return 0;
 }
 
-//std::string getExecutionPath() {
-//    std::string path = "";
-//    int path_max = 1024;
-//    char buff[path_max];
-//    ssize_t len = readlink("/proc/self/exe", buff, sizeof ( buff) - 1);
-//
-//    if (len != -1) {
-//        buff[len] = '\0';
-//        size_t found;
-//        std::string full_name = std::string(buff);
-//        found = full_name.find_last_of("/\\");
-//        path = full_name.substr(0, found);
-//    }
-//    return path;
-//}
+std::string getExecutionPath() {
+    std::string path = "";
+    int path_max = 1024;
+    char buff[path_max];
+    ssize_t len = readlink("/proc/self/exe", buff, sizeof ( buff) - 1);
+
+    if (len != -1) {
+        buff[len] = '\0';
+        size_t found;
+        std::string full_name = std::string(buff);
+        found = full_name.find_last_of("/\\");
+        path = full_name.substr(0, found);
+    }
+    return path;
+}
 
 bool createDirectoryTree(std::string path) {
     size_t position = 0;
@@ -170,21 +170,21 @@ bool setMacFile(std::string * c_name) {
     return client_id_set;
 }
 
-void setFrameParameters(cv::Mat * f, int * f_width, int * f_height, int * pf_width, int * pf_height, int * max_mov_width,
-        int * min_mov_width, int * min_horizontal_mov_dist, int * min_vertical_mov_dist, int * pf_border_width) {
-    *f_width = f->cols;
-    *f_height = f->rows;
-
-    *pf_width = *f_width / DEFAULT_RESIZE_SCALE;
-    *pf_height = *f_height / DEFAULT_RESIZE_SCALE;
-
-    *pf_border_width = (int) * pf_width / 4;
-
-    *max_mov_width = (*pf_width / 2.5); // 40% do tamanho total da imagem (tamanho/100)*40 = tamanho / 2.5
-    *min_mov_width = (*pf_width / 20); // 5% do tamanho total da imagem (tamanho/100)*5 = tamanho / 20
-
-    *min_horizontal_mov_dist = *pf_width / 10; // a distancia horizontal percorrida entre detecções deve ser de no mínimo 10% do tamanho horzontal da imagem processada
-    *min_vertical_mov_dist = *pf_height / 10; // a distancia vertical percorrida entre detecções deve ser de no mínimo 10% do tamanho vertical da imagem processada
-
-    std::cout << "Configured frame size for processing: " << *pf_width << "x" << *pf_height << ", area = " << (*pf_width) * (*pf_height) << std::endl;
-}
+//void setFrameParameters(cv::Mat * f, int * f_width, int * f_height, int * pf_width, int * pf_height, int * max_mov_width,
+//        int * min_mov_width, int * min_horizontal_mov_dist, int * min_vertical_mov_dist, int * pf_border_width) {
+//    *f_width = f->cols;
+//    *f_height = f->rows;
+//
+//    *pf_width = *f_width / DEFAULT_RESIZE_SCALE;
+//    *pf_height = *f_height / DEFAULT_RESIZE_SCALE;
+//
+//    *pf_border_width = (int) * pf_width / 4;
+//
+//    *max_mov_width = (*pf_width / 2.5); // 40% do tamanho total da imagem (tamanho/100)*40 = tamanho / 2.5
+//    *min_mov_width = (*pf_width / 20); // 5% do tamanho total da imagem (tamanho/100)*5 = tamanho / 20
+//
+//    *min_horizontal_mov_dist = *pf_width / 10; // a distancia horizontal percorrida entre detecções deve ser de no mínimo 10% do tamanho horzontal da imagem processada
+//    *min_vertical_mov_dist = *pf_height / 10; // a distancia vertical percorrida entre detecções deve ser de no mínimo 10% do tamanho vertical da imagem processada
+//
+//    std::cout << "Configured frame size for processing: " << *pf_width << "x" << *pf_height << ", area = " << (*pf_width) * (*pf_height) << std::endl;
+//}

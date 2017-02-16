@@ -16,7 +16,7 @@
 #include <fstream>                      // std::ofstream
 #include <sstream>                      // std::stringstream
 #include <time.h>                       // time_t, time, ctime
-#include "SharedFrameBuffer.h"
+
 #include "MessageDealer.h"
 #include "Event.h"
 
@@ -81,11 +81,10 @@ public:
     void start();
 private:
     bool _showMotion;
-    
     bool _executionError;
-    int _capDeviceIndex;
-
+    
     std::string _eventsStoragePath;
+    int _capDeviceIndex;
 
     Event * event_task;
         
@@ -122,8 +121,8 @@ private:
     cv::Scalar _mean;
     cv::Scalar _color;      // amarelo, cor do retangulo que delimita detecções
     
-    std::list<Frame> *_frameBuffer;
-    Frame _streamingFrame;
+    std::list<EventFrame> *_frameBuffer;
+//    EventFrame * _streamingFrame;
     
     bool _event_running;
     double _eventMotionQuantity;
@@ -131,7 +130,6 @@ private:
     int _eventVerticalDirection;
     std::time_t _eventStartTime;
     std::time_t _lastMotionDetectedTime;
-//    SharedFrameBuffer * _sharedFrameBuffer;
     
     bool _servoHorizontalMovementEnable;
     bool _servoVerticalMovementEnable;

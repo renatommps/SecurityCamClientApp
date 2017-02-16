@@ -17,13 +17,13 @@ const int VIDEO_WRITER_CODEC = CV_FOURCC('M', 'J', 'P', 'G'); // {'F','M','P','4
 
 class Event {
 public:
-    Event(std::list<Frame> *frameBuffer);
+    Event(std::list<EventFrame> *frameBuffer);
     Event(const Event& orig);
     virtual ~Event();
     void start();
 
     std::string getFormatedTime(std::time_t raw_time, std::string format);
-    void addFrameToBuffer(Frame frame);
+    void addFrameToBuffer(EventFrame frame);
     void incrementMotionQuantity(double quantity);
     void finishEvent(int horizontalDirection, int verticalDirection, double motionQuantity);
 

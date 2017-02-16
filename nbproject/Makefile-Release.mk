@@ -37,9 +37,9 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 OBJECTFILES= \
 	${OBJECTDIR}/ClientTask.o \
 	${OBJECTDIR}/Event.o \
+	${OBJECTDIR}/EventFrame.o \
 	${OBJECTDIR}/EventSenderTask.o \
 	${OBJECTDIR}/EventStorageTask.o \
-	${OBJECTDIR}/Frame.o \
 	${OBJECTDIR}/MessageDealer.o \
 	${OBJECTDIR}/ProcessingTask.o \
 	${OBJECTDIR}/SharedFrameBuffer.o \
@@ -82,6 +82,11 @@ ${OBJECTDIR}/Event.o: Event.cpp
 	${RM} "$@.d"
 	$(COMPILE.cc) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Event.o Event.cpp
 
+${OBJECTDIR}/EventFrame.o: EventFrame.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.cc) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/EventFrame.o EventFrame.cpp
+
 ${OBJECTDIR}/EventSenderTask.o: EventSenderTask.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
@@ -91,11 +96,6 @@ ${OBJECTDIR}/EventStorageTask.o: EventStorageTask.cpp
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.cc) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/EventStorageTask.o EventStorageTask.cpp
-
-${OBJECTDIR}/Frame.o: Frame.cpp 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Frame.o Frame.cpp
 
 ${OBJECTDIR}/MessageDealer.o: MessageDealer.cpp 
 	${MKDIR} -p ${OBJECTDIR}

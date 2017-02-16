@@ -9,32 +9,34 @@ SharedFrameBuffer::SharedFrameBuffer(const SharedFrameBuffer& orig) {
 SharedFrameBuffer::~SharedFrameBuffer() {
 }
 
-void SharedFrameBuffer::assign(std::list<Frame> * frameBuffer) {
-    if (!frameBuffer->empty()) {
-        _frameBuffer.assign(frameBuffer);
-    }
-}
-
-void SharedFrameBuffer::assign(SharedFrameBuffer * frameBuffer) {
-    if (!frameBuffer->empty()) {
-        _frameBuffer.assign(frameBuffer->getFrameBuffer());
-    }
-}
-
-void SharedFrameBuffer::pushBackFrame(Frame frame) {
-    Frame f(frame);
-
+void SharedFrameBuffer::assign(std::list<EventFrame> * frameBuffer) {
     _bufferMutex.lock();
-    _frameBuffer.push_back(f);
+    if (!frameBuffer->empty()) {
+        _frameBuffer = *frameBuffer;
+    }
     _bufferMutex.unlock();
 }
 
-Frame SharedFrameBuffer::popFrontFrame() {
-    cv::Mat frame;
+void SharedFrameBuffer::assign(SharedFrameBuffer * frameBuffer) {
+    _bufferMutex.lock();
+    if (!frameBuffer->empty()) {
+        _frameBuffer = frameBuffer->getFrameBuffer();
+    }
+    _bufferMutex.unlock();
+}
+
+void SharedFrameBuffer::pushBackFrame(EventFrame * frame) {
+    _bufferMutex.lock();
+    _frameBuffer.push_back(*frame);
+    _bufferMutex.unlock();
+}
+
+EventFrame * SharedFrameBuffer::popFrontFrame() {
+     EventFrame * frame = nullptr;
 
     _bufferMutex.lock();
     if (!_frameBuffer.empty()) {
-        frame = _frameBuffer.front();
+        frame = &_frameBuffer.front();
         _frameBuffer.pop_front();
     }
     _bufferMutex.unlock();
@@ -42,25 +44,25 @@ Frame SharedFrameBuffer::popFrontFrame() {
     return frame;
 }
 
-Frame SharedFrameBuffer::getFrontFrame() {
-    cv::Mat frame;
+EventFrame * SharedFrameBuffer::getFrontFrame() {
+    EventFrame * frame = nullptr;
 
     _bufferMutex.lock();
     if (!_frameBuffer.empty()) {
-        frame = _frameBuffer.front();
+        frame = &_frameBuffer.front();
     }
     _bufferMutex.unlock();
 
     return frame;
 }
 
-std::list<Frame> SharedFrameBuffer::getFrameBuffer() {
-    std::list<Frame> frameBuffer;
+std::list<EventFrame> SharedFrameBuffer::getFrameBuffer() {
+    std::list<EventFrame> frameBuffer;
 
     _bufferMutex.lock();
-    frameBuffer.assign(_frameBuffer);
+    frameBuffer = _frameBuffer;
     _bufferMutex.unlock();
-    
+
     return frameBuffer;
 }
 
